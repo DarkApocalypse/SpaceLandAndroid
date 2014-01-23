@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:text="Large Text"
+        android:text="@string/Title_loadGame"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
@@ -19,6 +19,34 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/bp_loadGameRun"
         android:text="@string/bt_back" />
+
+    <Button
+        android:id="@+id/bp_loadGameRun"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:longClickable="false"
+        android:text="@string/bt_loadgame" />
+
+    <ListView
+        android:id="@+id/listGames"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/loadGame_back"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/Title_loadGame" >
+
+    </ListView>
+
+    <Button
+        android:id="@+id/bp_loadDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/bt_loadDelete" />
 
 </RelativeLayout>

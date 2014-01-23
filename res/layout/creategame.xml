@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:text="Load Game"
+        android:text="@string/Title_createGame"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
@@ -20,5 +20,86 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:text="@string/bt_back" />
+
+    <Button
+        android:id="@+id/bp_createGameRun"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="@string/bt_creategame" />
+
+    <TextView
+        android:id="@+id/label_progress_universe_create"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/Title_loadGame"
+        android:layout_marginTop="25dp"
+        android:text="@string/label_progress_universe_create" />
+
+    <ProgressBar
+        android:id="@+id/progress_universe_create"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/label_progress_universe_create" />
+
+    <TextView
+        android:id="@+id/label_progress_galaxy_create"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/progress_universe_create"
+        android:layout_marginTop="24dp"
+        android:text="@string/label_progress_galaxy_create" />
+
+    <ProgressBar
+        android:id="@+id/progress_galaxy_create"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/label_progress_galaxy_create" />
+    
+    <TextView
+        android:id="@+id/label_progress_solar_create"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/progress_galaxy_create"
+        android:layout_marginTop="24dp"
+        android:text="@string/label_progress_solar_create" />
+
+    <ProgressBar
+        android:id="@+id/progress_solar_create"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/label_progress_solar_create" />
+    
+    <TextView
+        android:id="@+id/label_progress_planet_create"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/progress_solar_create"
+        android:layout_marginTop="24dp"
+        android:text="@string/label_progress_planet_create" />
+
+    <ProgressBar
+        android:id="@+id/progress_planet_create"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/label_progress_planet_create" />
 
 </RelativeLayout>

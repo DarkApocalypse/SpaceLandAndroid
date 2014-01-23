@@ -8,4 +8,16 @@
 	<string name="bt_back">Back</string>
 	<string name="MenuSave">Save</string>
 	<string name="MenuQuit">Quit</string>
+	<string name="Title_createGame">Create Game</string>
+	<string name="Title_loadGame">Load Game</string>
+	<string name="Title_settings">Settings</string>
+	<string name="Error_createGame">An error lock the creation of save. Sorry</string>
+	<string name="Good_createGame">Your save %s  is created.</string>
+	<string name="bt_loadDelete">Delete</string>
+	<string name="Error_loadDelete">An error lock the deletetion of save. Sorry</string>
+	<string name="Good_loadDelete">Your save %s  is deleted.</string>
+	<string name="label_progress_universe_create">Universe Progression</string>
+	<string name="label_progress_galaxy_create">Galaxy Progression</string>
+	<string name="label_progress_solar_create">Solar Progression</string>
+	<string name="label_progress_planet_create">Planet Progression</string>
 </resources>
