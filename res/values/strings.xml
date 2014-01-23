@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SpaceLand</string>
+    <string name="action_settings">Settings</string>
+    <string name="bt_creategame">New Game</string>
+    <string name="bt_loadgame">Load Game</string>
+    <string name="bt_settings">Settings</string>
+	<string name="bt_back">Back</string>
+	<string name="MenuSave">Save</string>
+	<string name="MenuQuit">Quit</string>
+</resources>
