@@ -3,7 +3,7 @@ package fr.jc_android.spaceland;
 import java.io.FileOutputStream;
 
 public class Solar implements Entity{
-	private static Long solarID = new Long(0);
+	private static Long solarID = Long.valueOf(0);
 	protected Long mID;
 	protected Long[] mPlanets;
 	public Solar(int nbsPlanets) {

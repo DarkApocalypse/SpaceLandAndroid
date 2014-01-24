@@ -4,7 +4,7 @@ import java.io.FileOutputStream;
 
 
 public class Galaxy implements Entity{
-	private static Long galaxyID = new Long(0);
+	private static Long galaxyID = Long.valueOf(0);
 	protected Long mID;
 	protected Long[] mSolars;
 	public Galaxy(int size){

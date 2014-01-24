@@ -83,7 +83,7 @@ public class Universe implements Entity{
 		
 	}
 
-	private static Long universeID = new Long(0);
+	private static Long universeID = Long.valueOf(0);
 	protected Long mID;
 	protected Long[] mGalaxies;
 	private UniverseListener mUL;
@@ -177,6 +177,22 @@ public class Universe implements Entity{
 					}
 					int planetSize = up.getPlanetSize(nbsPlanets);
 					Planet p = new Planet(planetSize);
+					for(int y = 0;y<planetSize;y++){
+						for(int x=0;x<planetSize;x++){
+							if(mUL!=null){
+								mUL.onPlanetProgress(x + y*planetSize, planetSize*planetSize);
+							}
+							Block b;
+							if(y < 3 + Math.floor(Math.random() * planetSize / 10.0)){
+								b = new BedRock(x,y);
+								p.add(b);
+							}
+							else{
+								b = new Air(x,y);
+							}
+							b.save(path);
+						}
+					}
 					p.save(path);
 					s.add(p,k);
 				}

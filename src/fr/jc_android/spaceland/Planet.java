@@ -4,7 +4,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 public class Planet implements Entity{
-	private static Long planetID = new Long(0);
+	private static Long planetID = Long.valueOf(0);
 	protected Long mID;
 	protected int mSize;
 	protected ArrayList<Long> mEntities;
@@ -16,11 +16,6 @@ public class Planet implements Entity{
 		mSize = planetSize;
 		mBlocks = new Long[mSize*mSize];
 		mEntities = new ArrayList<Long>();
-		for(int y = 0;y<mSize;y++){
-			for(int x=0;x<mSize;x++){
-				
-			}
-		}
 	}
 	@Override
 	public String toString(){
@@ -60,5 +55,8 @@ public class Planet implements Entity{
 			return false;
 		}
 		return true;
+	}
+	public void add(Block b) {
+		mBlocks[b.getX()+b.getY()*mSize] = b.getID();
 	}
 }
