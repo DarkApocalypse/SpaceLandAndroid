@@ -2,12 +2,14 @@ package fr.jc_android.spaceland;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import fr.jc_android.spaceland.Universe.UniverseParameters;
-
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
+import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -98,6 +100,13 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 		return super.onMenuItemSelected(featureId, item);
 	}
 
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		Log.i("[ACTITIVY]","onConfigurationChanged");
+		super.onConfigurationChanged(newConfig);
+		return;
+	}
+
 	//LoadListener
 	protected void loadLayout(int layout){
 		Button b;
@@ -140,9 +149,9 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 							continue;
 						String save = files[i].substring(files[i].lastIndexOf('/')+1).replaceAll("[^0-9]", "");
 						Log.i("[LOAD GAME]","(save)"+files[i]);
-						Date d = new Date();
-						d.setTime(Long.parseLong(save)*1000);
-						save = d.getHours()+":"+d.getMinutes()+":"+d.getSeconds()+" "+d.getDate()+"/"+(d.getMonth()+1)+"/"+(d.getYear()+1900);
+						Calendar c = Calendar.getInstance();
+						c.setTimeInMillis(Long.parseLong(save)*1000);
+						save = c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE)+":"+c.get(Calendar.SECOND)+" "+c.get(Calendar.DATE)+"/"+(c.get(Calendar.MONTH)+1)+"/"+c.get(Calendar.YEAR);
 						saves.add(save);
 					}
 					ArrayAdapter<String> aa = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,saves);
@@ -286,15 +295,15 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 					Log.i("[LOAD GAME","pos:"+selectedPos);
 					if(tv!=null){
 						Log.i("[DELETE GAME]","Delete "+tv);
-						Date d = new Date();
 						String[] s = tv.split("[ :/]");
-						d.setHours(Integer.parseInt(s[0]));
-						d.setMinutes(Integer.parseInt(s[1]));
-						d.setSeconds(Integer.parseInt(s[2]));
-						d.setDate(Integer.parseInt(s[3]));
-						d.setMonth(Integer.parseInt(s[4])-1);
-						d.setYear(Integer.parseInt(s[5])-1900);
-						File save = new File(getPath()+"/saves/save_"+(d.getTime() / 1000)+"");
+						Calendar c = Calendar.getInstance();
+						c.set(Calendar.HOUR, Integer.parseInt(s[0]));
+						c.set(Calendar.MINUTE, Integer.parseInt(s[1]));
+						c.set(Calendar.SECOND, Integer.parseInt(s[2]));
+						c.set(Calendar.DATE, Integer.parseInt(s[3]));
+						c.set(Calendar.MONTH, Integer.parseInt(s[4]));
+						c.set(Calendar.YEAR, Integer.parseInt(s[5]));
+						File save = new File(getPath()+"/saves/save_"+(c.getTimeInMillis() / 1000)+"");
 						Log.i("[DELETE GAME]","Deleting file("+save.getAbsolutePath()+"...");
 						if(save.exists()){
 							File[] files = save.listFiles();
@@ -331,7 +340,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	}
 
 	private String getPath() {
-		return getDir("SpaceLand", MODE_WORLD_READABLE).getAbsolutePath();
+		return getDir("SpaceLand", Context.MODE_PRIVATE).getAbsolutePath();
 	}
 
 	@Override

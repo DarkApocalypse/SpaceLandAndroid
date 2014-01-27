@@ -4,9 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import fr.jc_android.spaceland.Block.BlockType;
 
 public class Universe implements Entity{
 	public static class UniverseParameters{
@@ -96,7 +97,7 @@ public class Universe implements Entity{
 				}
 			});
 			for(int i =0;i<files.length;i++){
-				Long id = new Long(files[i].getName().replaceAll("[^0-9]", ""));
+				Long id = Long.valueOf(files[i].getName().replaceAll("[^0-9]", ""));
 				if(id-1 > universeID)
 					universeID=id;
 			}
@@ -184,13 +185,12 @@ public class Universe implements Entity{
 							}
 							Block b;
 							if(y < 3 + Math.floor(Math.random() * planetSize / 10.0)){
-								b = new BedRock(x,y);
+								b = Block.genBlock(x,y,BlockType.BED_ROCK);
 								p.add(b);
 							}
 							else{
-								b = new Air(x,y);
+								b = Block.genBlock(x,y,BlockType.AIR);
 							}
-							b.save(path);
 						}
 					}
 					p.save(path);
