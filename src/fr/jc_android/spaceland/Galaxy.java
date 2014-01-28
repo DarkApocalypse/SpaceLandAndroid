@@ -1,6 +1,13 @@
 package fr.jc_android.spaceland;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class Galaxy implements Entity{
@@ -12,6 +19,12 @@ public class Galaxy implements Entity{
 			mID = ++galaxyID;
 		}
 		mSolars = new Long[size];
+	}
+	public Galaxy(Long id) {
+		synchronized (galaxyID) {
+			galaxyID = Long.valueOf(id.longValue()-1);
+			mID = ++galaxyID;
+		}
 	}
 	public void add(Solar s,int index) {
 		mSolars[index] = s.getID();		
@@ -45,5 +58,31 @@ public class Galaxy implements Entity{
 			return false;
 		}
 		return true;
+	}
+	public static Galaxy load(Long id, String path){
+		JSONObject json;
+		try {
+			FileInputStream fis = new FileInputStream(path+"/galaxy_"+id+".json");
+			StringBuilder sb = new StringBuilder();
+			while(fis.available()!=0){
+				sb.append((char)fis.read());
+			}
+			fis.close();
+			json = new JSONObject(sb.toString());
+			Galaxy g = new Galaxy(id);
+			JSONArray solars = json.getJSONArray("mSolars");
+			g.mSolars = new Long[solars.length()];
+			for(int i=0;i<solars.length();i++){
+				g.mSolars[i] = Long.valueOf(solars.getLong(i));
+			}
+			return g;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

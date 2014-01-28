@@ -66,12 +66,12 @@ public class Planet implements Entity{
 	public void add(Block b) {
 		mBlocks[b.getX()+b.getY()*mSize] = b.getType().ordinal();
 	}
-	public static Planet loadPlanet(String path){
+	public static Planet load(Long id, String path){
 		StringBuilder content = new StringBuilder();
 		Planet p = null;
 		FileInputStream fis;
 		try {
-			fis = new FileInputStream(path);
+			fis = new FileInputStream(path+"/planet_"+id.longValue()+".json");
 			fis.close();
 			JSONObject json = new JSONObject(content.toString());
 			p = new Planet(json.getInt("mSize"));

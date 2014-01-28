@@ -1,9 +1,14 @@
 package fr.jc_android.spaceland;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -104,6 +109,12 @@ public class Universe implements Entity{
 			mID=++universeID;
 		}
 	}
+	public Universe(Long id){
+		synchronized (universeID) {
+			universeID = Long.valueOf(id.longValue()-1);
+			mID = ++universeID;
+		}
+	}
 	protected void add(Galaxy g, int index) {
 		mGalaxies[index] = g.getID();
 	}
@@ -138,22 +149,28 @@ public class Universe implements Entity{
 		return true;
 	}
 	public static Universe load(Long id, String path){
-		File dir = new File(path);
-		File[] files = dir.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String filename) {
-				return filename.startsWith("universe") && filename.endsWith("universe");
+		JSONObject json;
+		try {
+			FileInputStream fis = new FileInputStream(path+"/universe_"+id+".json");
+			StringBuilder sb = new StringBuilder();
+			while(fis.available()!=0){
+				sb.append((char)fis.read());
 			}
-		});
-		for(int i=0;i<files.length;i++){
-			JSONTokener jsont = new JSONTokener(files[i].getAbsolutePath());
-			try {
-				JSONObject json = (JSONObject) jsont.nextValue();
-				if(json==null || !(json instanceof JSONObject))
-					throw new Exception("Invalid JSON Object");
-			} catch (Exception e) {
-				e.printStackTrace();
+			fis.close();
+			json = new JSONObject(sb.toString());
+			Universe u = new Universe(id);
+			JSONArray galaxies = json.getJSONArray("mGalaxies");
+			u.mGalaxies = new Long[galaxies.length()];
+			for(int i=0;i<galaxies.length();i++){
+				u.mGalaxies[i] = Long.valueOf(galaxies.getLong(i));
 			}
+			return u;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}

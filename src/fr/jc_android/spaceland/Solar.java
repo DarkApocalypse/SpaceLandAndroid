@@ -1,6 +1,13 @@
 package fr.jc_android.spaceland;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Solar implements Entity{
 	private static Long solarID = Long.valueOf(0);
@@ -11,6 +18,12 @@ public class Solar implements Entity{
 			mID = ++solarID;
 		}
 		mPlanets = new Long[nbsPlanets];
+	}
+	public Solar(Long id) {
+		synchronized (solarID) {
+			solarID = Long.valueOf(id.longValue()-1);
+			mID = ++solarID;
+		}
 	}
 	public void add(Planet p, int k) {
 		mPlanets[k] = p.getID();
@@ -44,5 +57,31 @@ public class Solar implements Entity{
 			return false;
 		}
 		return true;
+	}
+	public static Solar load(Long id,String path){
+		JSONObject json;
+		try {
+			FileInputStream fis = new FileInputStream(path+"/solar_"+id+".json");
+			StringBuilder sb = new StringBuilder();
+			while(fis.available()!=0){
+				sb.append((char)fis.read());
+			}
+			fis.close();
+			json = new JSONObject(sb.toString());
+			Solar s = new Solar(id);
+			JSONArray planets = json.getJSONArray("mPlanets");
+			s.mPlanets = new Long[planets.length()];
+			for(int i=0;i<planets.length();i++){
+				s.mPlanets[i] = Long.valueOf(planets.getLong(i));
+			}
+			return s;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

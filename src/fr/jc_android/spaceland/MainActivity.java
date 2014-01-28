@@ -38,6 +38,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	protected Galaxy mGalaxy;
 	protected Solar mSolar;
 	protected Planet mPlanet;
+	protected Player mPlayer;
+	protected String mPath;
 	protected class ToastByThread implements Runnable{
 		protected String mText;
 		protected int mDuration;
@@ -277,7 +279,29 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 					String tv = (String)ls.getItemAtPosition(selectedPos);
 					Log.i("[LOAD GAME","pos:"+selectedPos);
 					if(tv!=null){
-						Log.i("[LOAD GAME","Load "+tv);
+						Log.i("[LOAD GAME","Load "+tv);String[] s = tv.split("[ :/]");
+						Calendar c = Calendar.getInstance();
+						c.set(Calendar.HOUR_OF_DAY, Integer.parseInt(s[0]));
+						c.set(Calendar.MINUTE, Integer.parseInt(s[1]));
+						c.set(Calendar.SECOND, Integer.parseInt(s[2]));
+						c.set(Calendar.DATE, Integer.parseInt(s[3]));
+						c.set(Calendar.MONTH, Integer.parseInt(s[4]));
+						c.set(Calendar.YEAR, Integer.parseInt(s[5]));
+						File save = new File(getPath()+"/saves/save_"+(c.getTimeInMillis() / 1000)+"");
+						Log.i("[LOAD GAME]","Deleting file("+save.getAbsolutePath()+"...");
+						if(save.exists()){
+							String files[] = save.list();
+							Player p = null;
+							for(int i=0;i<files.length;i++){
+								if(files[i]=="player.json"){
+									p = Player.load(save.getAbsolutePath()+"/"+files[i]);
+								}
+							}
+							if(p!=null){
+								mPlayer = p;
+								loadLayout(R.layout.ingame);
+							}
+						}
 					}
 					else{
 						Log.i("[LOAD GAME","tv null");
@@ -297,7 +321,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						Log.i("[DELETE GAME]","Delete "+tv);
 						String[] s = tv.split("[ :/]");
 						Calendar c = Calendar.getInstance();
-						c.set(Calendar.HOUR, Integer.parseInt(s[0]));
+						c.set(Calendar.HOUR_OF_DAY, Integer.parseInt(s[0]));
 						c.set(Calendar.MINUTE, Integer.parseInt(s[1]));
 						c.set(Calendar.SECOND, Integer.parseInt(s[2]));
 						c.set(Calendar.DATE, Integer.parseInt(s[3]));
@@ -342,9 +366,13 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	private String getPath() {
 		return getDir("SpaceLand", Context.MODE_PRIVATE).getAbsolutePath();
 	}
+	
+	protected String getCurrentPath(){
+		return mPath;
+	}
 
 	@Override
-	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+ 	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 		Log.i("[onItemSeleted]", "Item selected: "+arg0.getItemAtPosition(arg0.getSelectedItemPosition()));
 		Button b = (Button)findViewById(R.id.bp_loadGameRun);
 		if(b!=null){
