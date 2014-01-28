@@ -9,10 +9,7 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import fr.jc_android.spaceland.Block.BlockType;
-import android.util.JsonReader;
 
 public class Planet implements Entity{
 	private static Long planetID = Long.valueOf(0);

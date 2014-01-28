@@ -10,7 +10,6 @@ import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import fr.jc_android.spaceland.Block.BlockType;
 
