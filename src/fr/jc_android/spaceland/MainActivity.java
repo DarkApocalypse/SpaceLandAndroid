@@ -23,6 +23,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -40,6 +41,12 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	protected Planet mPlanet;
 	protected Player mPlayer;
 	protected String mPath;
+	protected enum InGameMode{
+		UNIVERSE,
+		GALAXY,
+		SOLAR,
+		PLANET
+	}
 	protected class ToastByThread implements Runnable{
 		protected String mText;
 		protected int mDuration;
@@ -167,6 +174,36 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 				b = (Button)findViewById(R.id.settings_back);
 				b.setOnClickListener(this);
 			}break;
+			case R.layout.ingame:{
+				ImageView i;
+				i = (ImageView)findViewById(R.id.imageUniverse);
+				i.setVisibility(View.INVISIBLE);
+				i = (ImageView)findViewById(R.id.imageGalaxy);
+				i.setVisibility(View.INVISIBLE);
+				i = (ImageView)findViewById(R.id.imageSolar);
+				i.setVisibility(View.INVISIBLE);
+				switch(mPlayer.getIGM()){
+					case UNIVERSE:{
+						i = (ImageView)findViewById(R.id.imageUniverse);
+						i.setVisibility(View.VISIBLE);
+						//TODO: Draw universe
+					}break;
+					case GALAXY:{
+						i = (ImageView)findViewById(R.id.imageGalaxy);
+						i.setVisibility(View.VISIBLE);
+						//TODO: Draw galaxy
+					}break;
+					case SOLAR:{
+						i = (ImageView)findViewById(R.id.imageSolar);
+						i.setVisibility(View.VISIBLE);
+						//TODO: Draw solar system
+					}break;
+					case PLANET:{
+						Log.i("[ACTIVITY]","TODO");
+						//TODO: Draw planet
+					}break;
+				}
+			}break;
 			default:{
 				Log.i("[ACTIVITY]","Unknow layout");
 			}break;
@@ -216,8 +253,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 								ProgressBar pb = (ProgressBar)findViewById(R.id.progress_universe_create);
 								if(pb!=null){
 									pb.setMax(nbsGalaxies);
-									pb.setProgress(indexGalaxy)
-;								}
+									pb.setProgress(indexGalaxy);
+								}
 							}
 
 							@Override
@@ -225,8 +262,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 								ProgressBar pb = (ProgressBar)findViewById(R.id.progress_galaxy_create);
 								if(pb!=null){
 									pb.setMax(nbsSolars);
-									pb.setProgress(indexSolar)
-;								}
+									pb.setProgress(indexSolar);
+								}
 							}
 
 							@Override
@@ -234,8 +271,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 								ProgressBar pb = (ProgressBar)findViewById(R.id.progress_solar_create);
 								if(pb!=null){
 									pb.setMax(nbsPlanets);
-									pb.setProgress(indexPlanet)
-;								}
+									pb.setProgress(indexPlanet);
+								}
 							}
 
 							@Override
@@ -243,13 +280,18 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 								ProgressBar pb = (ProgressBar)findViewById(R.id.progress_planet_create);
 								if(pb!=null){
 									pb.setMax(nbsBlocks);
-									pb.setProgress(indexBlock)
-;								}
+									pb.setProgress(indexBlock);
+								}
 								
 							}
 						});
 						universe.generate(up, saveDir.getAbsolutePath());
 						universe.save(saveDir.getAbsolutePath());
+						Player p = new Player(MainActivity.this);
+						Long[] location = new Long[4];
+						location[3] = universe.getID();
+						p.setLocation(location);
+						p.save();
 						MainActivity.this.runOnUiThread(new MainActivity.ToastByThread(
 							String.format(getResources().getString(R.string.Good_createGame),saveDir.getName()),
 							Toast.LENGTH_SHORT
@@ -294,7 +336,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 							Player p = null;
 							for(int i=0;i<files.length;i++){
 								if(files[i]=="player.json"){
-									p = Player.load(save.getAbsolutePath()+"/"+files[i]);
+									p = Player.load(save.getAbsolutePath()+"/"+files[i], this);
 								}
 							}
 							if(p!=null){

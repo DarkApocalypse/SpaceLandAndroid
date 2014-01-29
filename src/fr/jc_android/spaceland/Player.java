@@ -10,41 +10,49 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import fr.jc_android.spaceland.MainActivity.InGameMode;
+
 public class Player implements SpaceObject {
 	protected Universe mUniverse;
 	protected Galaxy mGalaxy;
 	protected Solar mSolar;
 	protected Planet mPlanet;
 	protected MainActivity mAct;
-
+	protected InGameMode mIGM;
+	public Player(MainActivity act){
+		mAct = act;
+	}
 	@Override
-	public Long[] setLocation(Long[] location) {
-		Long[] l = new Long[4];
-		try{
-			l[0] = mUniverse.getID();
-			l[1] = mGalaxy.getID();
-			l[2] = mSolar.getID();
-			l[3] = mPlanet.getID();
-		}
-		catch(Exception e){}
+	public void setLocation(Long[] location) {
 		int offset = 0;
-		if(l.length==4){
-			mUniverse = Universe.load(location[0], mAct.getCurrentPath());
-			offset++;
-		}
-		if(l.length>=3){
-			mGalaxy = Galaxy.load(location[offset], mAct.getCurrentPath());
-			offset++;
-		}
-		if(l.length>=2){
-			mSolar = Solar.load(location[offset], mAct.getCurrentPath());
-			offset++;
-		}
-		if(l.length>=1){
+		if(location.length>0){
 			mPlanet = Planet.load(location[offset], mAct.getCurrentPath());
 			offset++;
 		}
-		return l;
+		if(location.length>1){
+			mSolar = Solar.load(location[offset], mAct.getCurrentPath());
+			offset++;
+		}
+		if(location.length>2){
+			offset++;
+			mGalaxy = Galaxy.load(location[offset], mAct.getCurrentPath());
+		}
+		if(location.length>3){
+			mUniverse = Universe.load(location[offset], mAct.getCurrentPath());
+			offset++;
+		}
+		if(mPlanet!=null){
+			mIGM = InGameMode.PLANET;
+		}
+		if(mSolar!=null){
+			mIGM = InGameMode.SOLAR;
+		}
+		if(mGalaxy!=null){
+			mIGM = InGameMode.GALAXY;
+		}
+		if(mUniverse!=null){
+			mIGM = InGameMode.UNIVERSE;
+		}
 	}
 
 	@Override
@@ -94,7 +102,7 @@ public class Player implements SpaceObject {
 		}
 	}
 
-	public static Player load(String path) {
+	public static Player load(String path, MainActivity act) {
 
 		JSONObject json;
 		try {
@@ -105,7 +113,7 @@ public class Player implements SpaceObject {
 			}
 			fis.close();
 			json = new JSONObject(sb.toString());
-			Player p = new Player();
+			Player p = new Player(act);
 			JSONArray location = json.getJSONArray("mLocation");
 			Long[] l = new Long[location.length()];
 			p.setLocation(l);
@@ -120,4 +128,7 @@ public class Player implements SpaceObject {
 		return null;
 	}
 
+	public InGameMode getIGM(){
+		return mIGM;
+	}
 }

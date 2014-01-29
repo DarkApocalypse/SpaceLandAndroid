@@ -1,10 +1,8 @@
 /gen
 /libs
 /bin
-/AndroidManifest.xml
 /ic_launcher-web.png
 /proguard-project.txt
 /project.properties
-/assets
 /.classpath
 /.project
