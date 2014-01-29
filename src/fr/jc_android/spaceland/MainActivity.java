@@ -3,8 +3,6 @@ package fr.jc_android.spaceland;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-
 import fr.jc_android.spaceland.Universe.UniverseParameters;
 import android.os.Bundle;
 import android.app.Activity;
@@ -242,7 +240,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 				thread = new Thread(new Runnable() {
 					@Override
 					public void run() {
-						File saveDir = new File(getPath()+"/saves/save_"+((new Date()).getTime() / 1000));
+						Calendar c = Calendar.getInstance();
+						File saveDir = new File(getPath()+"/saves/save_"+(c.getTimeInMillis() / 1000));
 						if(!saveDir.exists())
 							saveDir.mkdirs();
 						Log.i("[NEW GAME]","save to "+saveDir.getAbsolutePath());
@@ -329,8 +328,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						c.set(Calendar.DATE, Integer.parseInt(s[3]));
 						c.set(Calendar.MONTH, Integer.parseInt(s[4]));
 						c.set(Calendar.YEAR, Integer.parseInt(s[5]));
-						File save = new File(getPath()+"/saves/save_"+(c.getTimeInMillis() / 1000)+"");
-						Log.i("[LOAD GAME]","Deleting file("+save.getAbsolutePath()+"...");
+						File save = new File(getPath()+"/saves/save_"+(c.getTimeInMillis() / 1000));
+						Log.i("[LOAD GAME]","Loading file("+save.getAbsolutePath()+"...");
 						if(save.exists()){
 							String files[] = save.list();
 							Player p = null;
@@ -369,8 +368,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						c.set(Calendar.DATE, Integer.parseInt(s[3]));
 						c.set(Calendar.MONTH, Integer.parseInt(s[4]));
 						c.set(Calendar.YEAR, Integer.parseInt(s[5]));
-						File save = new File(getPath()+"/saves/save_"+(c.getTimeInMillis() / 1000)+"");
-						Log.i("[DELETE GAME]","Deleting file("+save.getAbsolutePath()+"...");
+						File save = new File(getPath()+"/saves/save_"+(c.getTimeInMillis() / 1000));
+						Log.i("[DELETE GAME]","Deleting file("+save.getAbsolutePath()+")...");
 						if(save.exists()){
 							File[] files = save.listFiles();
 							for(int i=0;i<files.length;i++){
