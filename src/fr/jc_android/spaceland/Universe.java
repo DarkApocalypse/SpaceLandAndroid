@@ -212,10 +212,13 @@ public class Universe implements Entity{
 					p.save(path);
 					s.add(p,k);
 				}
+				s.save(path);
 				g.add(s,j);
 			}
+			g.save(path);
 			this.add(g,i);
 		}
+		save(path);
 	}
 	public void setListener(UniverseListener ul) {
 		mUL = ul;

@@ -3,8 +3,10 @@ package fr.jc_android.spaceland;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+
 import fr.jc_android.spaceland.Universe.UniverseParameters;
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -245,6 +247,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						if(!saveDir.exists())
 							saveDir.mkdirs();
 						Log.i("[NEW GAME]","save to "+saveDir.getAbsolutePath());
+						mPath = saveDir.getAbsolutePath();
 						UniverseParameters up = new UniverseParameters();
 						Universe universe = new Universe(saveDir.getAbsolutePath());
 						universe.setListener(new UniverseListener(){
@@ -285,7 +288,6 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 							}
 						});
 						universe.generate(up, saveDir.getAbsolutePath());
-						universe.save(saveDir.getAbsolutePath());
 						Player p = new Player(MainActivity.this);
 						Long[] location = new Long[4];
 						location[3] = universe.getID();
@@ -326,22 +328,28 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						c.set(Calendar.MINUTE, Integer.parseInt(s[1]));
 						c.set(Calendar.SECOND, Integer.parseInt(s[2]));
 						c.set(Calendar.DATE, Integer.parseInt(s[3]));
-						c.set(Calendar.MONTH, Integer.parseInt(s[4]));
+						c.set(Calendar.MONTH, Integer.parseInt(s[4])-1);
 						c.set(Calendar.YEAR, Integer.parseInt(s[5]));
-						File save = new File(getPath()+"/saves/save_"+(c.getTimeInMillis() / 1000));
+						File save = new File(getPath()+"/saves/save_"+(c.getTimeInMillis() / 1000)+"/");
 						Log.i("[LOAD GAME]","Loading file("+save.getAbsolutePath()+"...");
 						if(save.exists()){
 							String files[] = save.list();
 							Player p = null;
 							for(int i=0;i<files.length;i++){
-								if(files[i]=="player.json"){
+								if(files[i].equalsIgnoreCase("player.json")){
+									mPath = save.getAbsolutePath();
 									p = Player.load(save.getAbsolutePath()+"/"+files[i], this);
+									mPlayer = p;
+									loadLayout(R.layout.ingame);
+									break;
 								}
 							}
-							if(p!=null){
-								mPlayer = p;
-								loadLayout(R.layout.ingame);
+							if(p==null){
+								Log.i("[LOAD GAME]","Can't find player.json");
 							}
+						}
+						else{
+							Log.i("[LOAD GAME]","Can't find save folder");
 						}
 					}
 					else{
@@ -353,11 +361,11 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 				}
 			}break;
 			case R.id.bp_loadDelete:{
-				Log.i("[LOAD GAME]","Delete ");
+				Log.i("[DELETE GAME]","Delete ");
 				ListView ls = (ListView)findViewById(R.id.listGames);
 				if(ls!=null){
 					String tv = (String)ls.getItemAtPosition(selectedPos);
-					Log.i("[LOAD GAME","pos:"+selectedPos);
+					Log.i("[DELETE GAME","pos:"+selectedPos);
 					if(tv!=null){
 						Log.i("[DELETE GAME]","Delete "+tv);
 						String[] s = tv.split("[ :/]");
@@ -403,8 +411,23 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 		}
 		return ;
 	}
+	public boolean isExternalStorageWritable() {
+	    String state = Environment.getExternalStorageState();
+	    if (Environment.MEDIA_MOUNTED.equals(state)) {
+	        return true;
+	    }
+	    return false;
+	}
 
 	private String getPath() {
+		if(isExternalStorageWritable()){
+			File save = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/SpaceLand/");
+			if(!save.exists()){
+				save.mkdirs();
+			}
+			return save.getAbsolutePath();
+		}
+		
 		return getDir("SpaceLand", Context.MODE_PRIVATE).getAbsolutePath();
 	}
 	

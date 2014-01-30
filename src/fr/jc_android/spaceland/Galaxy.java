@@ -82,6 +82,8 @@ public class Galaxy implements Entity{
 			e.printStackTrace();
 		} catch (JSONException e) {
 			e.printStackTrace();
+		} catch(NullPointerException e){
+			e.printStackTrace();
 		}
 		return null;
 	}

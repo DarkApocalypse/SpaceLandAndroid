@@ -116,6 +116,9 @@ public class Player implements SpaceObject {
 			Player p = new Player(act);
 			JSONArray location = json.getJSONArray("mLocation");
 			Long[] l = new Long[location.length()];
+			for(int i=0;i<location.length();i++){
+				l[i] = Long.valueOf(location.getString(i));
+			}
 			p.setLocation(l);
 			return p;
 		} catch (FileNotFoundException e) {
