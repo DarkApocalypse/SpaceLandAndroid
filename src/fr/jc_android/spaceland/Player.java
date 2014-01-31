@@ -57,14 +57,20 @@ public class Player implements SpaceObject {
 
 	@Override
 	public Long[] getLocation() {
-		Long[] l = new Long[4];
+		Long[] l = new Long[]{(long) 0,(long) 0,(long) 0,(long) 0};
 		try{
-			l[0] = mUniverse.getID();
-			l[1] = mGalaxy.getID();
-			l[2] = mSolar.getID();
-			l[3] = mPlanet.getID();
+			if(mUniverse!=null)
+				l[0] = mUniverse.getID();
+			if(mGalaxy!=null)
+				l[1] = mGalaxy.getID();
+			if(mSolar!=null)
+				l[2] = mSolar.getID();
+			if(mPlanet!=null)
+				l[3] = mPlanet.getID();
 		}
-		catch(Exception e){}
+		catch(Exception e){
+			e.printStackTrace();
+		}
 		return l;
 	}
 

@@ -20,4 +20,13 @@
 	<string name="label_progress_galaxy_create">Galaxy Progression</string>
 	<string name="label_progress_solar_create">Solar Progression</string>
 	<string name="label_progress_planet_create">Planet Progression</string>
+	<string name="universe_background">Universe:Background</string>
+	<string name="galaxy_background">Galaxy:Background</string>
+	<string name="solar_system_background">Solar System:Background</string>
+	<string name="settings_universeSize">Size of universe</string>
+	<string name="settings_galaxySize">Size of galaxy</string>
+	<string name="settings_solarSize">Size of solar System</string>
+	<string name="settings_planetSize">Size of planet</string>
+	<string name="bp_settingsSave">Save settings</string>
+	<string name="settings_SaveText">Set Universe size: _1d, Galaxy size: _2d, Solar System size: _3d, Planet size: _4d</string>
 </resources>

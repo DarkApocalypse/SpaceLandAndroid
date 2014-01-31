@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +42,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	protected Planet mPlanet;
 	protected Player mPlayer;
 	protected String mPath;
+	protected UniverseParameters mUp = new UniverseParameters();
 	protected enum InGameMode{
 		UNIVERSE,
 		GALAXY,
@@ -173,6 +175,15 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 			case R.layout.settings:{
 				b = (Button)findViewById(R.id.settings_back);
 				b.setOnClickListener(this);
+				SeekBar sb = (SeekBar)findViewById(R.id.settings_universeBar);
+				sb.setProgress(mUp.getUniverseMaxGalaxy());
+				sb = (SeekBar)findViewById(R.id.settings_galaxyBar);
+				sb.setProgress(mUp.getGalaxyMaxSolars());
+				sb = (SeekBar)findViewById(R.id.settings_solarBar);
+				sb.setProgress(mUp.getSolarMaxPlanets());
+				sb = (SeekBar)findViewById(R.id.settings_planetBar);
+				sb.setProgress(mUp.getPlanetMaxSize());
+				b.setOnClickListener(this);
 			}break;
 			case R.layout.ingame:{
 				ImageView i;
@@ -200,6 +211,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 					}break;
 					case PLANET:{
 						Log.i("[ACTIVITY]","TODO");
+						View g = findViewById(R.id.gameView);
+						g.setVisibility(View.VISIBLE);
 						//TODO: Draw planet
 					}break;
 				}
@@ -248,7 +261,6 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 							saveDir.mkdirs();
 						Log.i("[NEW GAME]","save to "+saveDir.getAbsolutePath());
 						mPath = saveDir.getAbsolutePath();
-						UniverseParameters up = new UniverseParameters();
 						Universe universe = new Universe(saveDir.getAbsolutePath());
 						universe.setListener(new UniverseListener(){
 							public void onUniverseProgress(int indexGalaxy, int nbsGalaxies){
@@ -287,9 +299,12 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 								
 							}
 						});
-						universe.generate(up, saveDir.getAbsolutePath());
+						universe.generate(mUp, saveDir.getAbsolutePath());
 						Player p = new Player(MainActivity.this);
 						Long[] location = new Long[4];
+						location[0] = Long.valueOf(0);
+						location[1] = Long.valueOf(0);
+						location[2] = Long.valueOf(0);
 						location[3] = universe.getID();
 						p.setLocation(location);
 						p.save();
@@ -297,11 +312,16 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 							String.format(getResources().getString(R.string.Good_createGame),saveDir.getName()),
 							Toast.LENGTH_SHORT
 						));
-						Button b = (Button)findViewById(R.id.bp_createGameRun);
-						if(b!=null){
-							isCreating=false;
-							b.setEnabled(true);
-						}
+						MainActivity.this.runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Button b = (Button)findViewById(R.id.bp_createGameRun);
+								if(b!=null){
+									isCreating=false;
+									b.setEnabled(true);
+								}
+							}
+						});
 					}
 				});
 				thread.setPriority(Thread.MIN_PRIORITY);
@@ -404,6 +424,23 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 			//Settings layout
 			case R.id.settings_back:{
 				loadLayout(R.layout.activity_main);
+			}break;
+			case R.id.bp_settingsSave:{
+				SeekBar sb;
+				String text = getResources().getString(R.string.settings_SaveText);
+				sb = (SeekBar)findViewById(R.id.settings_universeBar);
+				mUp.setUniverseMaxGalaxy(sb.getProgress());
+				text = text.replace("_1d", String.valueOf(sb.getProgress()));
+				sb = (SeekBar)findViewById(R.id.settings_galaxyBar);
+				mUp.setGalaxyMaxSolars(sb.getProgress());
+				text = text.replace("_2d", String.valueOf(sb.getProgress()));
+				sb = (SeekBar)findViewById(R.id.settings_solarBar);
+				mUp.setSolarMaxPlanets(sb.getProgress());
+				text = text.replace("_3d", String.valueOf(sb.getProgress()));
+				sb = (SeekBar)findViewById(R.id.settings_planetBar);
+				mUp.setPlanetMaxSize(sb.getProgress());
+				text = text.replace("_4d", String.valueOf(sb.getProgress()));
+				Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
 			}break;
 			default:{
 				Log.i("[ONCLICK]","Unknow button");
