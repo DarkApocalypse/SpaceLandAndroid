@@ -6,19 +6,21 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Random;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.provider.ContactsContract.DeletedContacts;
 import fr.jc_android.spaceland.Block.BlockType;
 
 public class Universe implements Entity{
 	public static class UniverseParameters{
 		protected int mPlanetMinSize = 10;
 		protected int mPlanetMaxSize = 100;
-		protected int mSolarMinPlanets = 0;
-		protected int mSolarMaxPlanets = 10;
+		protected int mSolarMinPlanets = 2;
+		protected int mSolarMaxPlanets = 32;
 		protected int mGalaxyMinSolars = 10;
 		protected int mGalaxyMaxSolars = 20;
 		protected int mUniverseMinGalaxy = 5;
@@ -85,7 +87,21 @@ public class Universe implements Entity{
 		public int getPlanetSize(int nbsPlanets) {
 			return mPlanetMinSize + (int)(Math.random() * (mPlanetMaxSize - mPlanetMinSize));
 		}
-		
+		public String toString(){
+			StringBuilder sb = new StringBuilder();
+			sb.append("{");
+			sb.append("\"class\":\""+this.getClass().getName()+"\",");
+			sb.append("\"mPlanetMinSize\":"+mPlanetMinSize+",");
+			sb.append("\"mPlanetMaxSize\":"+mPlanetMaxSize+",");
+			sb.append("\"mSolarMinPlanets\":"+mSolarMinPlanets+",");
+			sb.append("\"mSolarMaxPlanets\":"+mSolarMaxPlanets+",");
+			sb.append("\"mGalaxyMinSolars\":"+mGalaxyMinSolars+",");
+			sb.append("\"mGalaxyMaxSolars\":"+mGalaxyMaxSolars+",");
+			sb.append("\"mUniverseMinGalaxy\":"+mUniverseMinGalaxy+",");
+			sb.append("\"mUniverseMaxGalaxy\":"+mUniverseMaxGalaxy);
+			sb.append("}");
+			return sb.toString();
+		}
 	}
 
 	private static Long universeID = Long.valueOf(0);
@@ -174,20 +190,39 @@ public class Universe implements Entity{
 		return null;
 	}
 	public void generate(UniverseParameters up, String path){
+		//TODO: GEN random location of space object
 		int nbsGalaxies = up.getGalaxies();
 		mGalaxies = new Long[nbsGalaxies];
+		boolean[] places = new boolean[100*100];
 		for(int i=0;i<nbsGalaxies;i++){
 			if(mUL!=null){
 				mUL.onUniverseProgress(i, nbsGalaxies);
 			}
 			int nbsSolars = up.getSolars(nbsGalaxies);
 			Galaxy g = new Galaxy(nbsSolars);
+			char _x = (char) Math.floor(Math.random() * 100);
+			char _y = (char) Math.floor(Math.random() * 100);
+			while(places[_x+100*_y]){
+				_x = (char) Math.floor(Math.random() * 100);
+				_y = (char) Math.floor(Math.random() * 100);
+			}
+			g.setX(_x);
+			g.setY(_y);
+			boolean[] places2 = new boolean[100*100];
 			for(int j=0;j<nbsSolars;j++){
 				if(mUL!=null){
 					mUL.onGalaxyProgress(j, nbsSolars);
 				}
 				int nbsPlanets = up.getPlanets(nbsSolars);
 				Solar s = new Solar(nbsPlanets);
+				char _x2 = (char) Math.floor(Math.random() * 100);
+				char _y2 = (char) Math.floor(Math.random() * 100);
+				while(places[_x+100*_y]){
+					_x2 = (char) Math.floor(Math.random() * 100);
+					_y2 = (char) Math.floor(Math.random() * 100);
+				}
+				s.setX(_x2);
+				s.setY(_y2);
 				for(int k=0;k<nbsPlanets;k++){
 					if(mUL!=null){
 						mUL.onSolarProgress(k, nbsPlanets);
@@ -225,5 +260,11 @@ public class Universe implements Entity{
 	}
 	public UniverseListener getListener() {
 		return mUL;
+	}
+	public int length() {
+		return mGalaxies.length;
+	}
+	public Galaxy getGalaxy(int i, String path){
+		return Galaxy.load(mGalaxies[i], path);
 	}
 }

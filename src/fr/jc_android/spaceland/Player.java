@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import fr.jc_android.spaceland.MainActivity.InGameMode;
+import fr.jc_android.spaceland.Universe.UniverseParameters;
 
 public class Player implements SpaceObject {
 	protected Universe mUniverse;
@@ -18,7 +19,7 @@ public class Player implements SpaceObject {
 	protected Solar mSolar;
 	protected Planet mPlanet;
 	protected MainActivity mAct;
-	protected InGameMode mIGM;
+	protected UniverseParameters mUp;
 	public Player(MainActivity act){
 		mAct = act;
 	}
@@ -34,27 +35,14 @@ public class Player implements SpaceObject {
 			offset++;
 		}
 		if(location.length>2){
-			offset++;
 			mGalaxy = Galaxy.load(location[offset], mAct.getCurrentPath());
+			offset++;
 		}
 		if(location.length>3){
 			mUniverse = Universe.load(location[offset], mAct.getCurrentPath());
 			offset++;
 		}
-		if(mPlanet!=null){
-			mIGM = InGameMode.PLANET;
-		}
-		if(mSolar!=null){
-			mIGM = InGameMode.SOLAR;
-		}
-		if(mGalaxy!=null){
-			mIGM = InGameMode.GALAXY;
-		}
-		if(mUniverse!=null){
-			mIGM = InGameMode.UNIVERSE;
-		}
 	}
-
 	@Override
 	public Long[] getLocation() {
 		Long[] l = new Long[]{(long) 0,(long) 0,(long) 0,(long) 0};
@@ -73,16 +61,16 @@ public class Player implements SpaceObject {
 		}
 		return l;
 	}
-
 	@Override
 	public String getPath() {
 		return mAct.getCurrentPath()+"/player.json";
 	}
-	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
 		Long[] location = getLocation();
+		sb.append("\"class\":\""+this.getClass().getName()+"\",");
+		sb.append("\"mUp\":"+mUp.toString()+",");
 		sb.append("\"mLocation\":[");
 		for(int i=0;i<location.length;i++){
 			sb.append((i>0 ? ",":"")+location[i].longValue());
@@ -90,7 +78,6 @@ public class Player implements SpaceObject {
 		sb.append("]}");
 		return sb.toString();
 	}
-
 	@Override
 	public void save() {
 		try {
@@ -99,7 +86,10 @@ public class Player implements SpaceObject {
 				f.delete();
 			}
 			FileOutputStream fos = new FileOutputStream(f);
-			
+			String s = toString();
+			for(int i = 0;i<s.length();i++){
+				fos.write(s.charAt(i));
+			}
 			fos.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -107,9 +97,7 @@ public class Player implements SpaceObject {
 			e.printStackTrace();
 		}
 	}
-
 	public static Player load(String path, MainActivity act) {
-
 		JSONObject json;
 		try {
 			FileInputStream fis = new FileInputStream(path);
@@ -123,9 +111,20 @@ public class Player implements SpaceObject {
 			JSONArray location = json.getJSONArray("mLocation");
 			Long[] l = new Long[location.length()];
 			for(int i=0;i<location.length();i++){
-				l[i] = Long.valueOf(location.getString(i));
+				l[i] = Long.valueOf(location.getString(3-i));
 			}
 			p.setLocation(l);
+			JSONObject jsonUP = json.getJSONObject("mUp");
+			UniverseParameters up = new UniverseParameters();
+			up.setPlanetMinSize(jsonUP.getInt("mPlanetMinSize"));
+			up.setPlanetMaxSize(jsonUP.getInt("mPlanetMaxSize"));
+			up.setSolarMinPlanets(jsonUP.getInt("mSolarMinPlanets"));
+			up.setSolarMaxPlanets(jsonUP.getInt("mSolarMaxPlanets"));
+			up.setGalaxyMinSolars(jsonUP.getInt("mGalaxyMinSolars"));
+			up.setGalaxyMaxSolars(jsonUP.getInt("mGalaxyMaxSolars"));
+			up.setUniverseMinGalaxy(jsonUP.getInt("mUniverseMinGalaxy"));
+			up.setUniverseMaxGalaxy(jsonUP.getInt("mUniverseMaxGalaxy"));
+			p.setUniverseParameters(up);
 			return p;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -136,8 +135,32 @@ public class Player implements SpaceObject {
 		}
 		return null;
 	}
-
+	public void setUniverseParameters(UniverseParameters up){
+		mUp = up;
+	}
+	public UniverseParameters getUniverseParameters(){
+		return mUp;
+	}
 	public InGameMode getIGM(){
-		return mIGM;
+		if(mPlanet!=null)
+			return InGameMode.PLANET;
+		if(mSolar!=null)
+			return InGameMode.SOLAR;
+		if(mGalaxy!=null)
+			return InGameMode.GALAXY;
+		return InGameMode.UNIVERSE;
+	}
+	public Universe getUniverse() {
+		return mUniverse;
+	}
+	public Galaxy getGalaxy() {
+		return mGalaxy;
+	}
+	public Solar getSolar() {
+		return mSolar;
+	}
+	public Planet getPlanet() {
+		// TODO Auto-generated method stub
+		return mPlanet;
 	}
 }

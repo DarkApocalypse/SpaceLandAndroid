@@ -13,17 +13,22 @@ public class Solar implements Entity{
 	private static Long solarID = Long.valueOf(0);
 	protected Long mID;
 	protected Long[] mPlanets;
+	protected char mX;
+	protected char mY;
+	protected String mName;
 	public Solar(int nbsPlanets) {
 		synchronized (solarID) {
 			mID = ++solarID;
 		}
 		mPlanets = new Long[nbsPlanets];
+		mName = "Solar System "+Long.toHexString(mID);
 	}
 	public Solar(Long id) {
 		synchronized (solarID) {
 			solarID = Long.valueOf(id.longValue()-1);
 			mID = ++solarID;
 		}
+		mName = "Solar System "+Long.toHexString(mID);
 	}
 	public void add(Planet p, int k) {
 		mPlanets[k] = p.getID();
@@ -32,6 +37,9 @@ public class Solar implements Entity{
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"class\":\""+this.getClass().getName()+"\",");
+		sb.append("\"mX\":"+(int)mX+",");
+		sb.append("\"mY\":"+(int)mY+",");
+		sb.append("\"mName\":\""+mName+"\",");
 		sb.append("\"mPlanets\":[");
 		for(int i=0;i<mPlanets.length;i++){
 			sb.append((i>0?",":"")+mPlanets[i]);
@@ -39,9 +47,27 @@ public class Solar implements Entity{
 		sb.append("]}");
 		return sb.toString();
 	}
+	public char getX() {
+		return mX;
+	}
+	public char getY() {
+		return mY;
+	}
+	public void setX(char x) {
+		mX=x;
+	}
+	public void setY(char y) {
+		mY=y;
+	}
 	@Override
 	public Long getID() {
 		return mID;
+	}
+	public String getName(){
+		return mName;
+	}
+	public void setName(String name){
+		mName = name.replaceAll("\"", "");
 	}
 	@Override
 	public boolean save(String path) {

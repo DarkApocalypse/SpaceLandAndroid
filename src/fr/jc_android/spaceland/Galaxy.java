@@ -13,18 +13,23 @@ import org.json.JSONObject;
 public class Galaxy implements Entity{
 	private static Long galaxyID = Long.valueOf(0);
 	protected Long mID;
+	protected char mX=0;
+	protected char mY=0;
 	protected Long[] mSolars;
+	protected String mName;
 	public Galaxy(int size){
 		synchronized (galaxyID) {
 			mID = ++galaxyID;
 		}
 		mSolars = new Long[size];
+		mName = "Galaxy "+Long.toHexString(mID);
 	}
 	public Galaxy(Long id) {
 		synchronized (galaxyID) {
 			galaxyID = Long.valueOf(id.longValue()-1);
 			mID = ++galaxyID;
 		}
+		mName = "Galaxy "+Long.toHexString(mID);
 	}
 	public void add(Solar s,int index) {
 		mSolars[index] = s.getID();		
@@ -33,7 +38,10 @@ public class Galaxy implements Entity{
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"class\":\""+this.getClass().getName()+"\",");
-		sb.append("\"mSolar\":[");
+		sb.append("\"mX\":"+(int)mX+",");
+		sb.append("\"mY\":"+(int)mY+",");
+		sb.append("\"mName\":\""+mName+"\",");
+		sb.append("\"mSolars\":[");
 		for(int i=0;i<mSolars.length;i++){
 			sb.append((i>0?",":"")+mSolars[i]);
 		}
@@ -43,6 +51,24 @@ public class Galaxy implements Entity{
 	@Override
 	public Long getID() {
 		return mID;
+	}
+	public char getX() {
+		return mX;
+	}
+	public char getY() {
+		return mY;
+	}
+	public void setX(char x) {
+		mX=x;
+	}
+	public void setY(char y) {
+		mY=y;
+	}
+	public String getName(){
+		return mName;
+	}
+	public void setName(String name){
+		mName = name.replaceAll("\"", "");
 	}
 	@Override
 	public boolean save(String path) {
@@ -75,6 +101,8 @@ public class Galaxy implements Entity{
 			for(int i=0;i<solars.length();i++){
 				g.mSolars[i] = Long.valueOf(solars.getLong(i));
 			}
+			g.mX = (char)json.getInt("mX");
+			g.mY = (char)json.getInt("mY");
 			return g;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

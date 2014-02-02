@@ -10,22 +10,29 @@ import android.os.Environment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Point;
+import android.sax.RootElement;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+import android.widget.AbsoluteLayout;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,10 +43,6 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	protected int selectedPos;
 	protected Thread thread;
 	protected boolean isCreating;
-	protected Universe mUniverse;
-	protected Galaxy mGalaxy;
-	protected Solar mSolar;
-	protected Planet mPlanet;
 	protected Player mPlayer;
 	protected String mPath;
 	protected UniverseParameters mUp = new UniverseParameters();
@@ -183,30 +186,69 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 				sb.setProgress(mUp.getSolarMaxPlanets());
 				sb = (SeekBar)findViewById(R.id.settings_planetBar);
 				sb.setProgress(mUp.getPlanetMaxSize());
+				b =  (Button)findViewById(R.id.bp_settingsSave);
 				b.setOnClickListener(this);
 			}break;
 			case R.layout.ingame:{
-				ImageView i;
-				i = (ImageView)findViewById(R.id.imageUniverse);
-				i.setVisibility(View.INVISIBLE);
-				i = (ImageView)findViewById(R.id.imageGalaxy);
-				i.setVisibility(View.INVISIBLE);
-				i = (ImageView)findViewById(R.id.imageSolar);
-				i.setVisibility(View.INVISIBLE);
+				ImageView imgView;
+				imgView = (ImageView)findViewById(R.id.imageUniverse);
+				imgView.setVisibility(View.GONE);
+				imgView = (ImageView)findViewById(R.id.imageGalaxy);
+				imgView.setVisibility(View.GONE);
+				imgView = (ImageView)findViewById(R.id.imageSolar);
+				imgView.setVisibility(View.GONE);
+				Log.i("R.layout.ingame", "Universe: "+(mPlayer.getUniverse()!=null ? mPlayer.getUniverse().getID() : "null"));
+				Log.i("R.layout.ingame", "Galaxy: "+(mPlayer.getGalaxy()!=null ? mPlayer.getGalaxy().getID() : "null"));
+				Log.i("R.layout.ingame", "solar: "+(mPlayer.getSolar()!=null ? mPlayer.getSolar().getID() : "null"));
+				Log.i("R.layout.ingame", "Planet: "+(mPlayer.getPlanet()!=null ? mPlayer.getPlanet().getID() : "null"));
+				if(mPlayer.mUniverse==null){
+					loadLayout(R.layout.activity_main);
+				}
 				switch(mPlayer.getIGM()){
 					case UNIVERSE:{
-						i = (ImageView)findViewById(R.id.imageUniverse);
-						i.setVisibility(View.VISIBLE);
-						//TODO: Draw universe
+						imgView = (ImageView)findViewById(R.id.imageUniverse);
+						imgView.setVisibility(View.VISIBLE);
+						RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
+						Display display = getWindowManager().getDefaultDisplay();
+						int length = mPlayer.getUniverse().length();
+						double stepX = (double)display.getWidth() / (1.5 * length);
+						double stepY = (double)display.getHeight() / (1.5 *length);
+						for(int i=0;i<length;i++){
+							Galaxy g = mPlayer.getUniverse().getGalaxy(i, getCurrentPath());
+							ImageView imgGalaxy = new ImageView(this);
+							imgGalaxy.setImageResource(R.drawable.star);
+							/*if((g.getID()%3)==0){	//RED
+								imgGalaxy.setColorFilter((int)((g.getID() & 0xFF)<<16));
+							}
+							else if((g.getID()%3)==1){	//GREEN
+								imgGalaxy.setColorFilter((int)((g.getID() & 0xFF)<<8));
+							}
+							else if((g.getID()%3)==2){	//BLUE
+								imgGalaxy.setColorFilter((int)((g.getID() & 0xFF)));
+							}*/
+							imgGalaxy.setClickable(true);
+							imgGalaxy.setOnClickListener(new GalaxyClickListener(this,g));
+							int x = (int)((double)g.getX() / 100.0 * length);
+							int y = (int)((double)g.getY() / 100.0 * length);
+							RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+									RelativeLayout.LayoutParams.MATCH_PARENT,
+									RelativeLayout.LayoutParams.MATCH_PARENT);
+							lp.leftMargin =(int)(x * stepX);
+							lp.topMargin = (int)(y * stepY);
+							lp.width = (int)stepX;
+							lp.height = (int)stepY;
+							rl.addView(imgGalaxy,lp);
+							Log.i("SPWN UNIVERSE", "pos: "+x+","+y+" "+((int)stepX)+" "+((int)stepY));
+						}
 					}break;
 					case GALAXY:{
-						i = (ImageView)findViewById(R.id.imageGalaxy);
-						i.setVisibility(View.VISIBLE);
+						imgView = (ImageView)findViewById(R.id.imageGalaxy);
+						imgView.setVisibility(View.VISIBLE);
 						//TODO: Draw galaxy
 					}break;
 					case SOLAR:{
-						i = (ImageView)findViewById(R.id.imageSolar);
-						i.setVisibility(View.VISIBLE);
+						imgView = (ImageView)findViewById(R.id.imageSolar);
+						imgView.setVisibility(View.VISIBLE);
 						//TODO: Draw solar system
 					}break;
 					case PLANET:{
@@ -307,7 +349,10 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						location[2] = Long.valueOf(0);
 						location[3] = universe.getID();
 						p.setLocation(location);
+						p.setUniverseParameters(mUp);
+						Log.i("[NEW GAME]","Player: "+p);
 						p.save();
+						mPlayer = p;
 						MainActivity.this.runOnUiThread(new MainActivity.ToastByThread(
 							String.format(getResources().getString(R.string.Good_createGame),saveDir.getName()),
 							Toast.LENGTH_SHORT
@@ -320,6 +365,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 									isCreating=false;
 									b.setEnabled(true);
 								}
+								loadLayout(R.layout.ingame);
 							}
 						});
 					}
@@ -360,6 +406,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 									mPath = save.getAbsolutePath();
 									p = Player.load(save.getAbsolutePath()+"/"+files[i], this);
 									mPlayer = p;
+									mUp = p.getUniverseParameters();
 									loadLayout(R.layout.ingame);
 									break;
 								}
@@ -394,7 +441,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						c.set(Calendar.MINUTE, Integer.parseInt(s[1]));
 						c.set(Calendar.SECOND, Integer.parseInt(s[2]));
 						c.set(Calendar.DATE, Integer.parseInt(s[3]));
-						c.set(Calendar.MONTH, Integer.parseInt(s[4]));
+						c.set(Calendar.MONTH, Integer.parseInt(s[4])-1);
 						c.set(Calendar.YEAR, Integer.parseInt(s[5]));
 						File save = new File(getPath()+"/saves/save_"+(c.getTimeInMillis() / 1000));
 						Log.i("[DELETE GAME]","Deleting file("+save.getAbsolutePath()+")...");
@@ -518,7 +565,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	protected void onDestroy() {
 		if(thread!=null){
 			try {
-				thread.wait(500);
+				thread.join(500);;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
