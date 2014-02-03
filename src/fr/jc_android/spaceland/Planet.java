@@ -102,6 +102,7 @@ public class Planet implements Entity{
 			for(int i=0;i<mEntities.length();i++){
 				p.addEntity(mEntities.getLong(i));
 			}
+			p.mR = (char)json.getInt("mR");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

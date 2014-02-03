@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Point;
+import android.graphics.PorterDuff.Mode;
 import android.sax.RootElement;
 import android.util.Log;
 import android.view.Display;
@@ -217,15 +218,15 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 							Galaxy g = mPlayer.getUniverse().getGalaxy(i, getCurrentPath());
 							ImageView imgGalaxy = new ImageView(this);
 							imgGalaxy.setImageResource(R.drawable.star);
-							/*if((g.getID()%3)==0){	//RED
-								imgGalaxy.setColorFilter((int)((g.getID() & 0xFF)<<16));
+							if((g.getID()%3)==0){	//RED
+								imgGalaxy.setColorFilter(0xFFFF0000,Mode.MULTIPLY);
 							}
 							else if((g.getID()%3)==1){	//GREEN
-								imgGalaxy.setColorFilter((int)((g.getID() & 0xFF)<<8));
+								imgGalaxy.setColorFilter(0xFF00FF00,Mode.MULTIPLY);
 							}
 							else if((g.getID()%3)==2){	//BLUE
-								imgGalaxy.setColorFilter((int)((g.getID() & 0xFF)));
-							}*/
+								imgGalaxy.setColorFilter(0xFF0000FF,Mode.MULTIPLY);
+							}
 							imgGalaxy.setClickable(true);
 							imgGalaxy.setOnClickListener(new GalaxyClickListener(this,g));
 							int x = (int)((double)g.getX() / 100.0 * length);
@@ -238,18 +239,80 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 							lp.width = (int)stepX;
 							lp.height = (int)stepY;
 							rl.addView(imgGalaxy,lp);
-							Log.i("SPWN UNIVERSE", "pos: "+x+","+y+" "+((int)stepX)+" "+((int)stepY));
 						}
 					}break;
 					case GALAXY:{
 						imgView = (ImageView)findViewById(R.id.imageGalaxy);
 						imgView.setVisibility(View.VISIBLE);
-						//TODO: Draw galaxy
+						RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
+						Display display = getWindowManager().getDefaultDisplay();
+						int length = mPlayer.getUniverse().length();
+						double stepX = (double)display.getWidth() / (1.5 * length);
+						double stepY = (double)display.getHeight() / (1.5 *length);
+						for(int i=0;i<length;i++){
+							Solar s = mPlayer.getGalaxy().getSolar(i, getCurrentPath());
+							ImageView imgSolar = new ImageView(this);
+							imgSolar.setImageResource(R.drawable.star);
+							if((s.getID()%3)==0){	//RED
+								imgSolar.setColorFilter(0xFFFF0000,Mode.MULTIPLY);
+							}
+							else if((s.getID()%3)==1){	//GREEN
+								imgSolar.setColorFilter(0xFF00FF00,Mode.MULTIPLY);
+							}
+							else if((s.getID()%3)==2){	//BLUE
+								imgSolar.setColorFilter(0xFF0000FF,Mode.MULTIPLY);
+							}
+							imgSolar.setClickable(true);
+							imgSolar.setOnClickListener(new SolarClickListener(this,s));
+							int x = (int)((double)s.getX() / 100.0 * length);
+							int y = (int)((double)s.getY() / 100.0 * length);
+							RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+									RelativeLayout.LayoutParams.MATCH_PARENT,
+									RelativeLayout.LayoutParams.MATCH_PARENT);
+							lp.leftMargin =(int)(x * stepX);
+							lp.topMargin = (int)(y * stepY);
+							lp.width = (int)stepX;
+							lp.height = (int)stepY;
+							rl.addView(imgSolar,lp);
+							Log.i("[]",((int)s.getX())+","+((int)s.getY()));
+						}
 					}break;
 					case SOLAR:{
 						imgView = (ImageView)findViewById(R.id.imageSolar);
 						imgView.setVisibility(View.VISIBLE);
-						//TODO: Draw solar system
+						RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
+						Display display = getWindowManager().getDefaultDisplay();
+						int length = mPlayer.getUniverse().length();
+						double centerX = (double)display.getWidth() / 2;
+						double centerY = (double)display.getHeight() / 2;
+						double stepR = Math.min(centerX, centerY) / (1.5 * length);
+						for(int i=0;i<length;i++){
+							Planet p = mPlayer.getSolar().getPlanet(i, getCurrentPath());
+							ImageView imgPlanet = new ImageView(this);
+							imgPlanet.setImageResource(R.drawable.star);
+							if((p.getID()%3)==0){	//RED
+								imgPlanet.setColorFilter(0xFFFF0000,Mode.MULTIPLY);
+							}
+							else if((p.getID()%3)==1){	//GREEN
+								imgPlanet.setColorFilter(0xFF00FF00,Mode.MULTIPLY);
+							}
+							else if((p.getID()%3)==2){	//BLUE
+								imgPlanet.setColorFilter(0xFF0000FF,Mode.MULTIPLY);
+							}
+							imgPlanet.setClickable(true);
+							imgPlanet.setOnClickListener(new PlanetClickListener(this,p));
+							int x = (int)(Math.cos(Math.random() * 2 * Math.PI) * (i*stepR));
+							int y = (int)(Math.cos(Math.random() * 2 * Math.PI) * (i*stepR));
+							RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+									RelativeLayout.LayoutParams.MATCH_PARENT,
+									RelativeLayout.LayoutParams.MATCH_PARENT);
+							lp.leftMargin =(int)(x + centerX);
+							lp.topMargin = (int)(y + centerY);
+							lp.width = (int)stepR;
+							lp.height = (int)stepR;
+							rl.addView(imgPlanet,lp);
+							Log.i("[]","R:"+((int)p.getR())+" "+stepR);
+						}
 					}break;
 					case PLANET:{
 						Log.i("[ACTIVITY]","TODO");

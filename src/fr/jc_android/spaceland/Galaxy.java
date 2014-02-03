@@ -115,4 +115,7 @@ public class Galaxy implements Entity{
 		}
 		return null;
 	}
+	public Solar getSolar(int i, String currentPath) {
+		return Solar.load(mSolars[i], currentPath);
+	}
 }

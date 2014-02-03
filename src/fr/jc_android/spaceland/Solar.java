@@ -100,6 +100,8 @@ public class Solar implements Entity{
 			for(int i=0;i<planets.length();i++){
 				s.mPlanets[i] = Long.valueOf(planets.getLong(i));
 			}
+			s.mX = (char)json.getInt("mX");
+			s.mY = (char)json.getInt("mY");
 			return s;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -111,5 +113,8 @@ public class Solar implements Entity{
 			e.printStackTrace();
 		}
 		return null;
+	}
+	public Planet getPlanet(int i, String currentPath) {
+		return Planet.load(mPlanets[i], currentPath);
 	}
 }
