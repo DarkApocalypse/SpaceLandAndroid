@@ -15,7 +15,10 @@ public class PlanetClickListener implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		Log.i("[PlanetClickListener]","click on "+mPlanet.getName());
-		//TODO: load planet
+		Long[] l = mAct.mPlayer.getLocation();
+		l[3] = mPlanet.getID();
+		mAct.mPlayer.setLocation(new Long[]{l[3],l[2],l[1],l[0]});
+		mAct.loadLayout(R.layout.ingame);
 	}
 
 }

@@ -9,6 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 public class Solar implements Entity{
 	private static Long solarID = Long.valueOf(0);
 	protected Long mID;
@@ -115,6 +117,11 @@ public class Solar implements Entity{
 		return null;
 	}
 	public Planet getPlanet(int i, String currentPath) {
+		Log.i("[SOLAR]","getPlanet("+i+",'"+currentPath+"')");
+		Log.i("[SOLAR]","mPlanets[i]:"+mPlanets[i]);
 		return Planet.load(mPlanets[i], currentPath);
+	}
+	public int length() {
+		return mPlanets.length;
 	}
 }

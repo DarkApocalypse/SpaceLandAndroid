@@ -20,6 +20,8 @@ public class Planet implements Entity{
 	protected int[] mBlocks;
 	protected char mR;
 	protected String mName;
+	protected int mSpawnX;
+	protected int mSpawnY;
 	public Planet(int planetSize){
 		synchronized (planetID) {
 			mID = ++planetID;	
@@ -28,6 +30,7 @@ public class Planet implements Entity{
 		mBlocks = new int[mSize*mSize];
 		mEntities = new ArrayList<Long>();
 		mName = "Planet "+Long.toHexString(mID);
+		mSpawnX = (int)(Math.random() * (double)mSize);
 	}
 	@Override
 	public String toString(){
@@ -82,15 +85,28 @@ public class Planet implements Entity{
 	}
 	public void add(Block b) {
 		mBlocks[b.getX()+b.getY()*mSize] = b.getType().ordinal();
+		//recalculate SpawnY
+		if(b.getX()==mSpawnX && !b.getType().isTraversable()){
+			int y;
+			int x = mSpawnX;
+			for(y=mSize-1;y>0;y--){
+				if(getBlockType(x, y).isTraversable() && !getBlockType(x, y).isTraversable())
+					break;
+			}
+			mSpawnY=y;
+		}
 	}
 	public static Planet load(Long id, String path){
-		StringBuilder content = new StringBuilder();
+		JSONObject json;
 		Planet p = null;
-		FileInputStream fis;
 		try {
-			fis = new FileInputStream(path+"/planet_"+id.longValue()+".json");
+			FileInputStream fis = new FileInputStream(path+"/planet_"+id.longValue()+".json");
+			StringBuilder sb = new StringBuilder();
+			while(fis.available()!=0){
+				sb.append((char)fis.read());
+			}
 			fis.close();
-			JSONObject json = new JSONObject(content.toString());
+			json = new JSONObject(sb.toString());
 			p = new Planet(json.getInt("mSize"));
 			JSONArray mBlock = json.getJSONArray("mBlock");
 			for(int x=0;x<p.getSize();x++){
@@ -119,5 +135,20 @@ public class Planet implements Entity{
 	}
 	public int getSize() {
 		return mSize;
+	}
+	public BlockType getBlockType(int x,int y) {
+		while(x<0)
+			x+=mSize;
+		while(y<0)
+			y+=mSize;
+		x = x%mSize;
+		y = y%mSize;
+		return BlockType.values()[mBlocks[x+y*mSize]];
+	}
+	public int getSpawnX() {
+		return mSpawnX;
+	}
+	public int getSpawnY() {
+		return mSpawnY;
 	}
 }

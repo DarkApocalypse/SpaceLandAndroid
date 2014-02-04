@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import fr.jc_android.spaceland.Block.BlockType;
 import fr.jc_android.spaceland.Universe.UniverseParameters;
 import android.os.Bundle;
 import android.os.Environment;
@@ -246,7 +247,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						imgView.setVisibility(View.VISIBLE);
 						RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
 						Display display = getWindowManager().getDefaultDisplay();
-						int length = mPlayer.getUniverse().length();
+						int length = mPlayer.getGalaxy().length();
 						double stepX = (double)display.getWidth() / (1.5 * length);
 						double stepY = (double)display.getHeight() / (1.5 *length);
 						for(int i=0;i<length;i++){
@@ -282,7 +283,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						imgView.setVisibility(View.VISIBLE);
 						RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
 						Display display = getWindowManager().getDefaultDisplay();
-						int length = mPlayer.getUniverse().length();
+						int length = mPlayer.getSolar().length();
 						double centerX = (double)display.getWidth() / 2;
 						double centerY = (double)display.getHeight() / 2;
 						double stepR = Math.min(centerX, centerY) / (1.5 * length);
@@ -318,7 +319,34 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						Log.i("[ACTIVITY]","TODO");
 						View g = findViewById(R.id.gameView);
 						g.setVisibility(View.VISIBLE);
-						//TODO: Draw planet
+						int spawnX = mPlayer.getPlanet().getSpawnX();
+						int spawnY = mPlayer.getPlanet().getSpawnY();
+						Log.i("[Planet]","Spawn at "+spawnX+":"+spawnY);
+						RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
+						Display display = getWindowManager().getDefaultDisplay();
+						double stepX = (double)display.getWidth() / 11.0;
+						double stepY = (double)display.getHeight() / 11.0;
+						RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+						RelativeLayout.LayoutParams.MATCH_PARENT,
+						RelativeLayout.LayoutParams.MATCH_PARENT);
+						for(int x=spawnX-5;x<spawnX+5;x++){
+							for(int y=spawnY-5;y<spawnY+5;y++){
+								BlockType bt = mPlayer.getPlanet().getBlockType(x, y);
+								ImageView imgBlock = new ImageView(this);
+								imgBlock.setImageResource(R.drawable.star);
+								if(bt==BlockType.AIR){
+									imgBlock.setColorFilter(0xFFccccFF, Mode.MULTIPLY);
+								}
+								else if(bt==BlockType.BED_ROCK){
+									imgBlock.setColorFilter(0xFF777777, Mode.MULTIPLY);
+								}
+								lp.leftMargin =(int)(x * stepX);
+								lp.bottomMargin = (int)(y * stepX);
+								lp.width = (int)stepX;
+								lp.height = (int)stepY;
+								rl.addView(imgBlock,lp);
+							}
+						}
 					}break;
 				}
 			}break;

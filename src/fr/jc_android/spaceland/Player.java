@@ -20,6 +20,8 @@ public class Player implements SpaceObject {
 	protected Planet mPlanet;
 	protected MainActivity mAct;
 	protected UniverseParameters mUp;
+	protected int mX;
+	protected int mY;
 	public Player(MainActivity act){
 		mAct = act;
 	}
@@ -160,7 +162,12 @@ public class Player implements SpaceObject {
 		return mSolar;
 	}
 	public Planet getPlanet() {
-		// TODO Auto-generated method stub
 		return mPlanet;
+	}
+	public int getX(){
+		return mX;
+	}
+	public int getY(){
+		return mY;
 	}
 }

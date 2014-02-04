@@ -217,7 +217,7 @@ public class Universe implements Entity{
 				Solar s = new Solar(nbsPlanets);
 				char _x2 = (char) Math.floor(Math.random() * 100);
 				char _y2 = (char) Math.floor(Math.random() * 100);
-				while(places[_x+100*_y]){
+				while(places2[_x+100*_y]){
 					_x2 = (char) Math.floor(Math.random() * 100);
 					_y2 = (char) Math.floor(Math.random() * 100);
 				}
