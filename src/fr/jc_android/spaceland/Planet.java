@@ -108,7 +108,7 @@ public class Planet implements Entity{
 			fis.close();
 			json = new JSONObject(sb.toString());
 			p = new Planet(json.getInt("mSize"));
-			JSONArray mBlock = json.getJSONArray("mBlock");
+			JSONArray mBlock = json.getJSONArray("mBlocks");
 			for(int x=0;x<p.getSize();x++){
 				for(int y=0;y<p.getSize();y++){
 					p.add(Block.genBlock(x, y, BlockType.values()[mBlock.getInt(y*p.getSize()+x)]));
@@ -139,11 +139,10 @@ public class Planet implements Entity{
 	public BlockType getBlockType(int x,int y) {
 		while(x<0)
 			x+=mSize;
-		while(y<0)
-			y+=mSize;
 		x = x%mSize;
-		y = y%mSize;
-		return BlockType.values()[mBlocks[x+y*mSize]];
+		if(y<0)
+			return BlockType.BED_ROCK;
+		return BlockType.values()[mBlocks[x*mSize+y]];
 	}
 	public int getSpawnX() {
 		return mSpawnX;

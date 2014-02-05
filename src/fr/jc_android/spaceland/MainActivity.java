@@ -302,8 +302,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 							}
 							imgPlanet.setClickable(true);
 							imgPlanet.setOnClickListener(new PlanetClickListener(this,p));
-							int x = (int)(Math.cos(Math.random() * 2 * Math.PI) * (i*stepR));
-							int y = (int)(Math.cos(Math.random() * 2 * Math.PI) * (i*stepR));
+							int x = (int)(Math.cos(((double)i / (double)length) * 2 * Math.PI) * (i*stepR));
+							int y = (int)(Math.sin(((double)i / (double)length) * 2 * Math.PI) * (i*stepR));
 							RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
 									RelativeLayout.LayoutParams.MATCH_PARENT,
 									RelativeLayout.LayoutParams.MATCH_PARENT);
@@ -324,13 +324,14 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						Log.i("[Planet]","Spawn at "+spawnX+":"+spawnY);
 						RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
 						Display display = getWindowManager().getDefaultDisplay();
-						double stepX = (double)display.getWidth() / 11.0;
-						double stepY = (double)display.getHeight() / 11.0;
-						RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-						RelativeLayout.LayoutParams.MATCH_PARENT,
-						RelativeLayout.LayoutParams.MATCH_PARENT);
+						Log.i("[PlanetSpawn]","Display:"+display.getWidth()+" "+display.getHeight());
+						double stepX = (double)display.getWidth() / 10.0;
+						double stepY = (double)display.getHeight() / 10.0;
 						for(int x=spawnX-5;x<spawnX+5;x++){
 							for(int y=spawnY-5;y<spawnY+5;y++){
+								RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+								RelativeLayout.LayoutParams.MATCH_PARENT,
+								RelativeLayout.LayoutParams.MATCH_PARENT);
 								BlockType bt = mPlayer.getPlanet().getBlockType(x, y);
 								ImageView imgBlock = new ImageView(this);
 								imgBlock.setImageResource(R.drawable.star);
@@ -338,12 +339,13 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 									imgBlock.setColorFilter(0xFFccccFF, Mode.MULTIPLY);
 								}
 								else if(bt==BlockType.BED_ROCK){
-									imgBlock.setColorFilter(0xFF777777, Mode.MULTIPLY);
+									imgBlock.setColorFilter(0xFF555555, Mode.MULTIPLY);
 								}
-								lp.leftMargin =(int)(x * stepX);
-								lp.bottomMargin = (int)(y * stepX);
+								lp.leftMargin =(int)((x+5) * stepX);
+								lp.topMargin = display.getHeight() - (int)stepY - (int)((y+5) * stepY);
 								lp.width = (int)stepX;
 								lp.height = (int)stepY;
+								Log.i("[PlanetSpawn]","["+x+":"+y+"]"+bt.name()+":"+lp.leftMargin+","+lp.topMargin);
 								rl.addView(imgBlock,lp);
 							}
 						}
