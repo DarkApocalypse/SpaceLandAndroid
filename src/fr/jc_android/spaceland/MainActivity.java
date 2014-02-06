@@ -6,6 +6,7 @@ import java.util.Calendar;
 
 import fr.jc_android.spaceland.Block.BlockType;
 import fr.jc_android.spaceland.Universe.UniverseParameters;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.os.Bundle;
@@ -68,20 +69,9 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
+		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		if(thread==null)
 			loadLayout(R.layout.activity_main);
-		mMedia = MediaPlayer.create(this, R.raw.doc_neptune);
-		if(mMedia!=null){
-			mMedia.setLooping(true);
-			mMedia.setVolume(100, 100);
-			mMedia.setOnErrorListener(new OnErrorListener() {
-				@Override
-				public boolean onError(MediaPlayer mp, int what, int extra) {
-					Log.i("MediaPlayer.OnErrorListener","Error:"+what+":"+extra);
-					return false;
-				}
-			});
-		}
 	}
 
 	@Override
@@ -136,6 +126,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	//LoadListener
 	protected void loadLayout(int layout){
 		Button b;
+		int oldLayout = mCurrentLayout;
 		mCurrentLayout = layout;
 		setContentView(layout);
 		switch(layout){
@@ -202,8 +193,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 				b.setOnClickListener(this);
 			}break;
 			case R.layout.ingame:{
-				if(mMedia!=null && !mMedia.isPlaying()){
-					mMedia.start();
+				if(oldLayout!=mCurrentLayout){
+					startMusic(R.raw.doc_neptune);
 				}
 				ImageView imgView;
 				imgView = (ImageView)findViewById(R.id.imageUniverse);
@@ -354,7 +345,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 								else if(bt==BlockType.BED_ROCK){
 									imgBlock.setColorFilter(0xFF555555, Mode.MULTIPLY);
 								}
-								lp.leftMargin =(int)((x+5) * stepX);
+								lp.leftMargin =(int)((x) * stepX);
 								lp.topMargin = display.getHeight() - (int)stepY - (int)((y+5) * stepY);
 								lp.width = (int)stepX;
 								lp.height = (int)stepY;
@@ -687,5 +678,25 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 		}
 		super.onDestroy();
 	}
-	
+	public void startMusic(int resId){
+		if(mMedia!=null){
+			mMedia.stop();
+			mMedia.release();
+		}
+		AudioManager am = (AudioManager) getSystemService(AUDIO_SERVICE);
+		mMedia = MediaPlayer.create(this, resId);
+		if(mMedia!=null){
+			mMedia.setLooping(true);
+			float vol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+			mMedia.setVolume(vol, vol);
+			mMedia.setOnErrorListener(new OnErrorListener() {
+				@Override
+				public boolean onError(MediaPlayer mp, int what, int extra) {
+					Log.i("MediaPlayer.OnErrorListener","Error:"+what+":"+extra);
+					return false;
+				}
+			});
+			mMedia.start();
+		}
+	}
 }
