@@ -6,14 +6,14 @@ import java.util.Calendar;
 
 import fr.jc_android.spaceland.Block.BlockType;
 import fr.jc_android.spaceland.Universe.UniverseParameters;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnErrorListener;
 import android.os.Bundle;
 import android.os.Environment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Point;
 import android.graphics.PorterDuff.Mode;
-import android.sax.RootElement;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -22,16 +22,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
-import android.widget.AbsoluteLayout;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -47,6 +44,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	protected boolean isCreating;
 	protected Player mPlayer;
 	protected String mPath;
+	protected MediaPlayer mMedia;
 	protected UniverseParameters mUp = new UniverseParameters();
 	protected enum InGameMode{
 		UNIVERSE,
@@ -72,6 +70,18 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 		super.onCreate(savedInstanceState);
 		if(thread==null)
 			loadLayout(R.layout.activity_main);
+		mMedia = MediaPlayer.create(this, R.raw.doc_neptune);
+		if(mMedia!=null){
+			mMedia.setLooping(true);
+			mMedia.setVolume(100, 100);
+			mMedia.setOnErrorListener(new OnErrorListener() {
+				@Override
+				public boolean onError(MediaPlayer mp, int what, int extra) {
+					Log.i("MediaPlayer.OnErrorListener","Error:"+what+":"+extra);
+					return false;
+				}
+			});
+		}
 	}
 
 	@Override
@@ -192,6 +202,9 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 				b.setOnClickListener(this);
 			}break;
 			case R.layout.ingame:{
+				if(mMedia!=null && !mMedia.isPlaying()){
+					mMedia.start();
+				}
 				ImageView imgView;
 				imgView = (ImageView)findViewById(R.id.imageUniverse);
 				imgView.setVisibility(View.GONE);
@@ -667,6 +680,10 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 			}catch(Exception e){
 				e.printStackTrace();
 			}
+		}
+		if(mMedia!=null){
+			mMedia.stop();
+			mMedia.release();
 		}
 		super.onDestroy();
 	}
