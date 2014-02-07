@@ -139,10 +139,13 @@ public class Planet implements Entity{
 	public BlockType getBlockType(int x,int y) {
 		while(x<0)
 			x+=mSize;
-		x = x%mSize;
+		x = x % mSize;
 		if(y<0)
 			return BlockType.BED_ROCK;
-		return BlockType.values()[mBlocks[x*mSize+y]];
+		if(y>=mSize)
+			return BlockType.AIR;
+		int blockType = mBlocks[x*mSize+y];
+		return BlockType.values()[blockType];
 	}
 	public int getSpawnX() {
 		return mSpawnX;

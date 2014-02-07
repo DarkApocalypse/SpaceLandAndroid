@@ -6,13 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.Random;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.provider.ContactsContract.DeletedContacts;
 import fr.jc_android.spaceland.Block.BlockType;
 
 public class Universe implements Entity{

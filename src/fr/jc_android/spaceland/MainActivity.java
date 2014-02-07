@@ -11,12 +11,16 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.os.Bundle;
 import android.os.Environment;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.ColorFilter;
+import android.graphics.Point;
 import android.graphics.PorterDuff.Mode;
 import android.util.Log;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -47,6 +51,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	protected String mPath;
 	protected MediaPlayer mMedia;
 	protected UniverseParameters mUp = new UniverseParameters();
+	protected double mZoom = 10.0;
 	protected enum InGameMode{
 		UNIVERSE,
 		GALAXY,
@@ -122,7 +127,58 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 		super.onConfigurationChanged(newConfig);
 		return;
 	}
-
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+	    if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+	    	switch(mCurrentLayout){
+	    		case R.layout.creategame:
+	    		case R.layout.loadgame:
+	    		case R.layout.settings:{
+	    			loadLayout(R.layout.activity_main);
+	    		}break;
+	    		case R.layout.ingame:{
+	    			if(mPlayer!=null){
+	    				switch(mPlayer.getIGM()){
+							case GALAXY:{
+								Long[] location = mPlayer.getLocation();
+								location[0]=(long) 0;
+								location[1]=(long) 0;
+								location[2]=(long) 0;
+								mPlayer.setLocation(location);
+			    				loadLayout(R.layout.ingame);
+							}break;
+							case PLANET:{
+								Long[] location = mPlayer.getLocation();
+								location[0]=(long) 0;
+								mPlayer.setLocation(location);
+			    				loadLayout(R.layout.ingame);
+							}break;
+							case SOLAR:{
+								Long[] location = mPlayer.getLocation();
+								location[0]=(long) 0;
+								location[1]=(long) 0;
+								mPlayer.setLocation(location);
+			    				loadLayout(R.layout.ingame);
+							}break;
+							case UNIVERSE:
+							default:{
+								mPlayer.save();
+			    				loadLayout(R.layout.activity_main);
+							}break;
+	    				}
+	    			}
+	    			else{
+		    			loadLayout(R.layout.activity_main);
+	    			}
+	    		}break;
+	    		case R.layout.activity_main:
+	    		default:{
+	    			
+	    		}
+	    		break;
+	    	}
+	    }
+	    return super.onKeyDown(keyCode, event);
+	}
 	//LoadListener
 	protected void loadLayout(int layout){
 		Button b;
@@ -215,10 +271,9 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						imgView = (ImageView)findViewById(R.id.imageUniverse);
 						imgView.setVisibility(View.VISIBLE);
 						RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
-						Display display = getWindowManager().getDefaultDisplay();
 						int length = mPlayer.getUniverse().length();
-						double stepX = (double)display.getWidth() / (1.5 * length);
-						double stepY = (double)display.getHeight() / (1.5 *length);
+						double stepX = (double)getWidth() / (1.5 * length);
+						double stepY = (double)getHeight() / (1.5 *length);
 						for(int i=0;i<length;i++){
 							Galaxy g = mPlayer.getUniverse().getGalaxy(i, getCurrentPath());
 							ImageView imgGalaxy = new ImageView(this);
@@ -250,10 +305,9 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						imgView = (ImageView)findViewById(R.id.imageGalaxy);
 						imgView.setVisibility(View.VISIBLE);
 						RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
-						Display display = getWindowManager().getDefaultDisplay();
 						int length = mPlayer.getGalaxy().length();
-						double stepX = (double)display.getWidth() / (1.5 * length);
-						double stepY = (double)display.getHeight() / (1.5 *length);
+						double stepX = (double)getWidth() / (1.5 * length);
+						double stepY = (double)getHeight() / (1.5 *length);
 						for(int i=0;i<length;i++){
 							Solar s = mPlayer.getGalaxy().getSolar(i, getCurrentPath());
 							ImageView imgSolar = new ImageView(this);
@@ -286,10 +340,9 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						imgView = (ImageView)findViewById(R.id.imageSolar);
 						imgView.setVisibility(View.VISIBLE);
 						RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
-						Display display = getWindowManager().getDefaultDisplay();
 						int length = mPlayer.getSolar().length();
-						double centerX = (double)display.getWidth() / 2;
-						double centerY = (double)display.getHeight() / 2;
+						double centerX = (double)getWidth() / 2;
+						double centerY = (double)getHeight() / 2;
 						double stepR = Math.min(centerX, centerY) / (1.5 * length);
 						for(int i=0;i<length;i++){
 							Planet p = mPlayer.getSolar().getPlanet(i, getCurrentPath());
@@ -320,39 +373,33 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 						}
 					}break;
 					case PLANET:{
-						Log.i("[ACTIVITY]","TODO");
-						View g = findViewById(R.id.gameView);
-						g.setVisibility(View.VISIBLE);
-						int spawnX = mPlayer.getPlanet().getSpawnX();
-						int spawnY = mPlayer.getPlanet().getSpawnY();
-						Log.i("[Planet]","Spawn at "+spawnX+":"+spawnY);
-						RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
-						Display display = getWindowManager().getDefaultDisplay();
-						Log.i("[PlanetSpawn]","Display:"+display.getWidth()+" "+display.getHeight());
-						double stepX = (double)display.getWidth() / 10.0;
-						double stepY = (double)display.getHeight() / 10.0;
-						for(int x=spawnX-5;x<spawnX+5;x++){
-							for(int y=spawnY-5;y<spawnY+5;y++){
-								RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-								RelativeLayout.LayoutParams.MATCH_PARENT,
-								RelativeLayout.LayoutParams.MATCH_PARENT);
-								BlockType bt = mPlayer.getPlanet().getBlockType(x, y);
-								ImageView imgBlock = new ImageView(this);
-								imgBlock.setImageResource(R.drawable.star);
-								if(bt==BlockType.AIR){
-									imgBlock.setColorFilter(0xFFccccFF, Mode.MULTIPLY);
+						View p = findViewById(R.id.gameView);
+						p.setVisibility(View.VISIBLE);
+						p.setOnClickListener(new OnClickListener() {
+							protected long lastClicked;
+							@Override
+							public void onClick(View v) {
+								if(lastClicked+300 > Calendar.getInstance().getTimeInMillis()){
+									lastClicked = 0;
+									Log.i("[]","zoom In");
+									mZoom *= 2.0;
+									drawPlanetArea();
 								}
-								else if(bt==BlockType.BED_ROCK){
-									imgBlock.setColorFilter(0xFF555555, Mode.MULTIPLY);
+								else{
+									lastClicked = Calendar.getInstance().getTimeInMillis();
 								}
-								lp.leftMargin =(int)((x) * stepX);
-								lp.topMargin = display.getHeight() - (int)stepY - (int)((y+5) * stepY);
-								lp.width = (int)stepX;
-								lp.height = (int)stepY;
-								Log.i("[PlanetSpawn]","["+x+":"+y+"]"+bt.name()+":"+lp.leftMargin+","+lp.topMargin);
-								rl.addView(imgBlock,lp);
 							}
-						}
+						});
+						p.setOnLongClickListener(new View.OnLongClickListener() {
+							@Override
+							public boolean onLongClick(View v) {
+								Log.i("[]","zoom Out");
+								mZoom /= 2.0;
+								drawPlanetArea();
+								return false;
+							}
+						});
+						drawPlanetArea();
 					}break;
 				}
 			}break;
@@ -697,6 +744,76 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 				}
 			});
 			mMedia.start();
+		}
+	}
+	protected void drawPlanetArea(){
+		Log.i("[ACTIVITY]","drawPlanetArea");
+		int spawnX = mPlayer.getPlanet().getSpawnX();
+		int spawnY = mPlayer.getPlanet().getSpawnY();
+		Log.i("[Planet]","Spawn at "+spawnX+":"+spawnY);
+		RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
+		int i=0;
+		while(i<rl.getChildCount()){
+			View v = rl.getChildAt(i);
+			if(v instanceof ImageView && v.getId()!=R.id.imageUniverse && v.getId()!=R.id.imageGalaxy && v.getId()!=R.id.imageSolar && v.getId()!=R.id.gameView){
+				rl.removeView(v);
+				continue;
+			}
+			i++;
+		}
+		Log.i("[PlanetSpawn]","Display:"+getWidth()+" "+getHeight());
+		double stepX = (double)getWidth() / mZoom;
+		double stepY = (double)getHeight() / mZoom;
+		Log.i("[drawPlanetArea]",stepX+" "+stepY);
+		int offsetX = spawnX-(int)Math.floor(mZoom / 2);
+		int offsetY = spawnY-(int)Math.floor(mZoom / 2);
+		for(int x=(spawnX-(int)Math.floor(mZoom / 2));x<(spawnX+(int)Math.ceil(mZoom / 2));x++){
+			for(int y=(spawnY-(int)Math.floor(mZoom / 2));y<(spawnY+(int)Math.ceil(mZoom / 2));y++){
+				RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.MATCH_PARENT,
+				RelativeLayout.LayoutParams.MATCH_PARENT);
+				BlockType bt = mPlayer.getPlanet().getBlockType(x, y);
+				ImageView imgBlock = new ImageView(this);
+				imgBlock.setImageResource(R.drawable.star);
+				if(bt==BlockType.AIR){
+					imgBlock.setColorFilter(0xFFccccFF, Mode.MULTIPLY);
+				}
+				else if(bt==BlockType.BED_ROCK){
+					imgBlock.setColorFilter(0xFF555555, Mode.MULTIPLY);
+				}
+				lp.leftMargin =(int)((x-offsetX) * stepX);
+				lp.topMargin = getHeight() - (int)stepY - (int)((y-offsetY) * stepY);
+				lp.width = (int)stepX;
+				lp.height = (int)stepY;
+				Log.i("[PlanetSpawn]","["+x+":"+y+"]"+bt.name()+":"+lp.leftMargin+","+lp.topMargin);
+				rl.addView(imgBlock,lp);
+			}
+		}
+	}
+	@SuppressLint("NewApi")
+	@SuppressWarnings("deprecation")
+	public int getHeight(){
+		Display display = getWindowManager().getDefaultDisplay();
+		if(android.os.Build.VERSION.SDK_INT<13){
+			return display.getHeight();
+		}
+		else{
+			Point p= new Point();
+			display.getSize(p);
+			return p.y;
+		}
+	}
+	@SuppressLint("NewApi")
+	@SuppressWarnings("deprecation")
+	public int getWidth(){
+		Display display = getWindowManager().getDefaultDisplay();
+		if(android.os.Build.VERSION.SDK_INT<13){
+			return display.getWidth();
+		}
+		else{
+			Point p= new Point();
+			display.getSize(p);
+			return p.x;
 		}
 	}
 }
