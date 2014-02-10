@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import fr.jc_android.spaceland.Block.BlockType;
 import fr.jc_android.spaceland.MainActivity.InGameMode;
 import fr.jc_android.spaceland.Universe.UniverseParameters;
 
@@ -169,5 +170,18 @@ public class Player implements SpaceObject {
 	}
 	public int getY(){
 		return mY;
+	}
+	public void setX(int i) {
+		while(mX<0)
+			mX+=getPlanet().getSize();
+		mX = i % getPlanet().getSize();
+	}
+	public void setY(int i) {
+		if(i > 0 && i < getPlanet().getSize()){
+			mY = i;
+		}
+	}
+	public BlockType blockAt(int x, int y) {
+		return getPlanet().getBlockType(mX+x, mY+y);
 	}
 }

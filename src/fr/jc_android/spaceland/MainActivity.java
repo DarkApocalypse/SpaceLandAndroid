@@ -24,6 +24,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.TouchDelegate;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
@@ -140,22 +141,26 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	    				switch(mPlayer.getIGM()){
 							case GALAXY:{
 								Long[] location = mPlayer.getLocation();
-								location[0]=(long) 0;
-								location[1]=(long) 0;
-								location[2]=(long) 0;
+								location = Utils.reverse(location);
+								location[0]=Long.valueOf(0);
+								location[1]=Long.valueOf(0);
+								location[2]=Long.valueOf(0);
 								mPlayer.setLocation(location);
 			    				loadLayout(R.layout.ingame);
 							}break;
 							case PLANET:{
 								Long[] location = mPlayer.getLocation();
-								location[0]=(long) 0;
+								Log.i("[onKeyDown]","Planet onKeyDown location:"+location);
+								location = Utils.reverse(location);
+								location[0] = Long.valueOf(0);
 								mPlayer.setLocation(location);
 			    				loadLayout(R.layout.ingame);
 							}break;
 							case SOLAR:{
 								Long[] location = mPlayer.getLocation();
-								location[0]=(long) 0;
-								location[1]=(long) 0;
+								location = Utils.reverse(location);
+								location[0]=Long.valueOf(0);
+								location[1]=Long.valueOf(0);
 								mPlayer.setLocation(location);
 			    				loadLayout(R.layout.ingame);
 							}break;
@@ -176,6 +181,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	    		}
 	    		break;
 	    	}
+	    	return true;
 	    }
 	    return super.onKeyDown(keyCode, event);
 	}
@@ -250,6 +256,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 			}break;
 			case R.layout.ingame:{
 				if(oldLayout!=mCurrentLayout){
+					Log.i("[INGAME]","load music:");
 					startMusic(R.raw.doc_neptune);
 				}
 				ImageView imgView;
@@ -382,8 +389,10 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 								if(lastClicked+300 > Calendar.getInstance().getTimeInMillis()){
 									lastClicked = 0;
 									Log.i("[]","zoom In");
-									mZoom *= 2.0;
-									drawPlanetArea();
+									if(mZoom > 2.5){
+										mZoom = mZoom / 2.0;
+										drawPlanetArea();
+									}
 								}
 								else{
 									lastClicked = Calendar.getInstance().getTimeInMillis();
@@ -394,8 +403,35 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 							@Override
 							public boolean onLongClick(View v) {
 								Log.i("[]","zoom Out");
-								mZoom /= 2.0;
-								drawPlanetArea();
+								if(mZoom < 40.0){
+									mZoom = mZoom * 2.0;
+									drawPlanetArea();
+								}
+								return false;
+							}
+						});
+						p.setOnTouchListener(new View.OnTouchListener() {
+							private boolean mInited=false;
+							private float mX;
+							private float mY;
+							@Override
+							public boolean onTouch(View v, MotionEvent event) {
+								Log.i("[PLANET OnTouch]",event.getX()+":"+event.getY());
+								if(!mInited || event.getAction()==MotionEvent.ACTION_DOWN){
+									mX = event.getX();
+									mY = event.getY();
+									mInited=true;
+									return true;
+								}
+								float delta = (mX-event.getX()); 
+								if(delta!=0){
+									int move=(delta>0 ? 1 : -1);
+									if(mPlayer.blockAt(move,0).isTraversable()){
+										mPlayer.setX(mPlayer.getX() + move);
+										drawPlanetArea();
+									}
+									return true;
+								}
 								return false;
 							}
 						});
@@ -748,8 +784,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 	}
 	protected void drawPlanetArea(){
 		Log.i("[ACTIVITY]","drawPlanetArea");
-		int spawnX = mPlayer.getPlanet().getSpawnX();
-		int spawnY = mPlayer.getPlanet().getSpawnY();
+		int spawnX = mPlayer.getX();
+		int spawnY = mPlayer.getY();
 		Log.i("[Planet]","Spawn at "+spawnX+":"+spawnY);
 		RelativeLayout rl = (RelativeLayout)findViewById(R.id.gameLayout);
 		int i=0;
