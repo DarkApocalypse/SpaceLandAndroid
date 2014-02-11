@@ -98,6 +98,11 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 			}break;
 			case R.layout.loadgame:{
 				menu.findItem(R.id.MenuSave).setVisible(true);
+				menu.findItem(R.id.MenuSaveSettings).setVisible(false);
+			}break;
+			case R.layout.ingame:{
+				menu.findItem(R.id.MenuSave).setVisible(true);
+				menu.findItem(R.id.MenuSaveSettings).setVisible(false);
 			}break;
 			default:{
 				menu.findItem(R.id.MenuSave).setVisible(false);
@@ -112,6 +117,27 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 		switch(item.getItemId()){
 			case R.id.MenuSave:{
 				Log.i("[ACTIVITY]", "Saving...");
+				if(mPlayer!=null){
+					switch(mPlayer.getIGM()){
+						case GALAXY:{
+							mPlayer.getGalaxy().save(getCurrentPath());
+						}break;
+						case PLANET:{
+							mPlayer.getPlanet().save(getCurrentPath());
+						}break;
+						case SOLAR:{
+							mPlayer.getSolar().save(getCurrentPath());
+						}break;
+						case UNIVERSE:{
+							mPlayer.getUniverse().save(getCurrentPath());
+						}break;
+						default:{
+							Log.i("[ACTIVITY]","Nothing to save");
+							return true;
+						}
+					}
+					mPlayer.save();
+				}
 				Log.i("[ACTIVITY]", "Saved!");
 			}break;
 			case R.id.MenuQuit:{
@@ -382,49 +408,40 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 					case PLANET:{
 						View p = findViewById(R.id.gameView);
 						p.setVisibility(View.VISIBLE);
-						p.setOnClickListener(new OnClickListener() {
-							protected long lastClicked;
-							@Override
-							public void onClick(View v) {
-								if(lastClicked+300 > Calendar.getInstance().getTimeInMillis()){
-									lastClicked = 0;
-									Log.i("[]","zoom In");
-									if(mZoom > 2.5){
-										mZoom = mZoom / 2.0;
-										drawPlanetArea();
-									}
-								}
-								else{
-									lastClicked = Calendar.getInstance().getTimeInMillis();
-								}
-							}
-						});
-						p.setOnLongClickListener(new View.OnLongClickListener() {
-							@Override
-							public boolean onLongClick(View v) {
-								Log.i("[]","zoom Out");
-								if(mZoom < 40.0){
-									mZoom = mZoom * 2.0;
-									drawPlanetArea();
-								}
-								return false;
-							}
-						});
 						p.setOnTouchListener(new View.OnTouchListener() {
 							private boolean mInited=false;
 							private float mX;
 							private float mY;
+							private long lastUpdate;
 							@Override
 							public boolean onTouch(View v, MotionEvent event) {
 								Log.i("[PLANET OnTouch]",event.getX()+":"+event.getY());
 								if(!mInited || event.getAction()==MotionEvent.ACTION_DOWN){
+									//Double click=zoom
+									if((lastUpdate+250) > Calendar.getInstance().getTimeInMillis()){
+										if(mZoom > 5)
+											mZoom--;
+										return true;
+									}
 									mX = event.getX();
 									mY = event.getY();
+									lastUpdate = Calendar.getInstance().getTimeInMillis();
 									mInited=true;
+									return false;
+								}
+								if((lastUpdate+500) < Calendar.getInstance().getTimeInMillis()){
+									if(mZoom < Math.min((int)20, mPlayer.getPlanet().getSize()))
+										mZoom++;
+									return true;
+								}
+								if((lastUpdate+250) > Calendar.getInstance().getTimeInMillis()){
 									return true;
 								}
 								float delta = (mX-event.getX()); 
-								if(delta!=0){
+								if(delta < -5 || delta > 5){
+									mX = event.getX();
+									mY = event.getY();
+									lastUpdate = Calendar.getInstance().getTimeInMillis();
 									int move=(delta>0 ? 1 : -1);
 									if(mPlayer.blockAt(move,0).isTraversable()){
 										mPlayer.setX(mPlayer.getX() + move);
@@ -821,7 +838,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 				lp.topMargin = getHeight() - (int)stepY - (int)((y-offsetY) * stepY);
 				lp.width = (int)stepX;
 				lp.height = (int)stepY;
-				Log.i("[PlanetSpawn]","["+x+":"+y+"]"+bt.name()+":"+lp.leftMargin+","+lp.topMargin);
+				//Log.i("[PlanetSpawn]","["+x+":"+y+"]"+bt.name()+":"+lp.leftMargin+","+lp.topMargin);
 				rl.addView(imgBlock,lp);
 			}
 		}
